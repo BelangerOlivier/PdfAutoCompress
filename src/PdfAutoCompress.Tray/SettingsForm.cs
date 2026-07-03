@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Drawing;
-using System.Windows.Forms;
 using PdfAutoCompress.Core;
 
 namespace PdfAutoCompress.Tray;
@@ -19,16 +17,15 @@ internal sealed class SettingsForm : Form
     private readonly TextBox _watchFolder = new() { Width = 300 };
     private readonly TextBox _ghostscript = new() { Width = 300 };
     private readonly ComboBox _pdfSettings = new()
-        { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
+    { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
     private readonly NumericUpDown _minMb = new()
-        { DecimalPlaces = 1, Minimum = 0, Maximum = 4096, Increment = 0.5M, Width = 90 };
+    { DecimalPlaces = 1, Minimum = 0, Maximum = 4096, Increment = 0.5M, Width = 90 };
     private readonly CheckBox _keepOriginal = new() { Text = "Keep original (write “-compressed.pdf” instead of overwriting)", AutoSize = true };
     private readonly CheckBox _notify = new() { Text = "Show a notification when a PDF is compressed", AutoSize = true };
     private readonly CheckBox _startup = new() { Text = "Start automatically when I log in", AutoSize = true };
     private readonly CheckBox _checkUpdates = new() { Text = "Check for updates on startup", AutoSize = true };
-    private readonly TextBox _repo = new() { Width = 300, PlaceholderText = "owner/name (e.g. belangerolivier/PdfAutoCompress)" };
     private readonly TextBox _log = new()
-        { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Width = 430, Height = 120, Font = new Font("Consolas", 8.5f) };
+    { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Width = 430, Height = 120, Font = new Font("Consolas", 8.5f) };
     private readonly Label _status = new() { AutoSize = true, MaximumSize = new Size(430, 0) };
 
     public SettingsForm(AppConfig config, PdfWatcher watcher, Icon icon)
@@ -100,7 +97,6 @@ internal sealed class SettingsForm : Form
         AddSpan(new Label { Height = 6 });
         AddSpan(_startup);
         AddSpan(_checkUpdates);
-        AddRow("GitHub repo:", _repo);
 
         var checkNow = new Button { Text = "Check for updates now", AutoSize = true };
         checkNow.Click += async (_, _) => await CheckNow();
@@ -147,7 +143,6 @@ internal sealed class SettingsForm : Form
         _keepOriginal.Checked = _config.KeepOriginal;
         _notify.Checked = _config.ShowNotifications;
         _checkUpdates.Checked = _config.CheckForUpdates;
-        _repo.Text = _config.UpdateRepo;
         _startup.Checked = StartupManager.IsEnabled();
 
         foreach (string line in _watcher.RecentLog)
@@ -167,7 +162,6 @@ internal sealed class SettingsForm : Form
         _config.KeepOriginal = _keepOriginal.Checked;
         _config.ShowNotifications = _notify.Checked;
         _config.CheckForUpdates = _checkUpdates.Checked;
-        _config.UpdateRepo = _repo.Text.Trim();
 
         try { StartupManager.SetEnabled(_startup.Checked); }
         catch (Exception ex)
@@ -206,7 +200,7 @@ internal sealed class SettingsForm : Form
 
     private async Task CheckNow()
     {
-        string repo = _repo.Text.Trim();
+        string repo = AppConfig.UpdateRepo.Trim();
         if (repo.Length == 0)
         {
             MessageBox.Show(this, "Enter your GitHub repo (owner/name) first.",

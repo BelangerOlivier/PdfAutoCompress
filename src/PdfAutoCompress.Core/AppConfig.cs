@@ -9,6 +9,8 @@ namespace PdfAutoCompress.Core;
 /// </summary>
 public sealed class AppConfig
 {
+    public const string UpdateRepo = "BelangerOlivier/PdfAutoCompress";
+
     public string WatchFolder { get; set; } = "";
     public string GhostscriptPath { get; set; } = "";
     public string PdfSettings { get; set; } = "/ebook";
@@ -20,9 +22,6 @@ public sealed class AppConfig
 
     /// <summary>Check GitHub for a newer release on startup.</summary>
     public bool CheckForUpdates { get; set; } = true;
-
-    /// <summary>GitHub repository as "owner/name" (e.g. "belangerolivier/PdfAutoCompress").</summary>
-    public string UpdateRepo { get; set; } = "";
 
     /// <summary>When started at login, wait this long before watching (lazy start).</summary>
     public int StartupDelaySeconds { get; set; } = 20;

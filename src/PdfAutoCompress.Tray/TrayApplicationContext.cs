@@ -1,5 +1,3 @@
-using System.Drawing;
-using System.Windows.Forms;
 using PdfAutoCompress.Core;
 
 namespace PdfAutoCompress.Tray;
@@ -46,7 +44,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         var menu = new ContextMenuStrip();
 
         var settings = new ToolStripMenuItem("Settings…", null, (_, _) => OpenSettings())
-            { Font = new Font(menu.Font, FontStyle.Bold) };
+        { Font = new Font(menu.Font, FontStyle.Bold) };
         var openFolder = new ToolStripMenuItem("Open watched folder", null, (_, _) =>
             SettingsForm.OpenUrl(_watcher.WatchFolder));
         _pauseItem = new ToolStripMenuItem("Pause", null, (_, _) => TogglePause());
@@ -129,8 +127,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private async Task CheckForUpdatesAsync(bool interactive)
     {
-        string repo = _config.UpdateRepo;
-        if (repo.Trim().Length == 0)
+        string repo = AppConfig.UpdateRepo.Trim();
+        if (repo.Length == 0)
         {
             if (interactive)
                 MessageBox.Show("Set your GitHub repo (owner/name) in Settings first.",
