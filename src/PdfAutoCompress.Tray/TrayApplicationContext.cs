@@ -15,6 +15,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private AppConfig _config;
     private SettingsForm? _settingsForm;
     private ToolStripMenuItem _pauseItem = null!;
+    private ToolStripMenuItem _uninstallItem = null!;
     private bool _paused;
 
     public TrayApplicationContext(string[] args)
@@ -60,6 +61,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _pauseItem = new ToolStripMenuItem("Pause", null, (_, _) => TogglePause());
         var checkUpdates = new ToolStripMenuItem("Check for updates…", null,
             async (_, _) => await CheckForUpdatesAsync(interactive: true));
+        _uninstallItem = new ToolStripMenuItem("Uninstall…", null, (_, _) => OnUninstallClicked());
         var quit = new ToolStripMenuItem("Quit", null, (_, _) => ExitThread());
 
         menu.Items.Add(settings);
@@ -68,9 +70,14 @@ internal sealed class TrayApplicationContext : ApplicationContext
         menu.Items.Add(_pauseItem);
         menu.Items.Add(checkUpdates);
         menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(_uninstallItem);
         menu.Items.Add(quit);
 
-        menu.Opening += (_, _) => _pauseItem.Text = _paused ? "Resume" : "Pause";
+        menu.Opening += (_, _) =>
+        {
+            _pauseItem.Text = _paused ? "Resume" : "Pause";
+            _uninstallItem.Visible = Installer.IsInstalled;
+        };
         return menu;
     }
 
@@ -121,6 +128,31 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         _tray.Visible = false;
         ExitThread(); // the installed copy relaunches once this process exits
+    }
+
+    private void OnUninstallClicked()
+    {
+        if (MessageBox.Show(
+                "Uninstall PDF Auto-Compress from this PC?\n\n" +
+                "This removes it from startup, deletes the Start-menu shortcut, and deletes:\n" +
+                $"{Installer.InstallDir}\n\n" +
+                "Your settings are kept. The app will close now.",
+                "Uninstall", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            return;
+
+        try
+        {
+            Installer.Uninstall();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Uninstall failed:\n" + ex.Message, "PDF Auto-Compress",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        _tray.Visible = false;
+        ExitThread(); // the install folder is deleted once this process exits
     }
 
     private void StartWatcher()
