@@ -1,5 +1,3 @@
-using System.Windows.Forms;
-
 namespace PdfAutoCompress.Tray;
 
 internal static class Program

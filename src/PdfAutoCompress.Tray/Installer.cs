@@ -65,8 +65,7 @@ internal static class Installer
 
     private static void RunAfterExit(string command)
     {
-        // `ping -n 3` waits ~2s reliably (unlike `timeout`, which needs console input and fails
-        // when launched without one) — giving this process time to exit and release the exe/mutex.
+        // `ping -n 3` waits ~2s reliably giving this process time to exit and release the exe/mutex.
         var psi = new ProcessStartInfo("cmd.exe", $"/c ping -n 3 127.0.0.1 >nul & {command}")
         {
             CreateNoWindow = true,
