@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PdfAutoCompress.Cli/PdfAutoCompress.Cli.csproj" />
+    <Project Path="src/PdfAutoCompress.Core/PdfAutoCompress.Core.csproj" />
+    <Project Path="src/PdfAutoCompress.Service/PdfAutoCompress.Service.csproj" />
+    <Project Path="src/PdfAutoCompress.Tray/PdfAutoCompress.Tray.csproj" />
+  </Folder>
+</Solution>
