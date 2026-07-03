@@ -73,7 +73,7 @@ Open **Settings…** from the tray menu (or double-click the tray icon) to chang
 | **Min size (MB)** | Ignore PDFs smaller than this. Set to **0** to compress every PDF. |
 | **Keep original** | Instead of replacing the file, save a separate copy ending in `-compressed.pdf`. |
 | **Show a notification when a PDF is compressed** | Turn the pop-ups on or off. |
-| **Start automatically when I log in** | Launch PDF Auto-Compress every time you sign in to Windows. |
+| **Launch automatically on startup** | Launch PDF Auto-Compress every time you sign in to Windows. |
 | **Check for updates on startup** | Let it check GitHub for a newer version. |
 | **Ghostscript** | Leave empty — it finds Ghostscript on its own. Only fill this in if you installed Ghostscript somewhere unusual. |
 
@@ -137,4 +137,4 @@ front-ends: the tray app, a Windows Service, and a cross-platform CLI.
 
 ---
 
-*PDF Auto-Compress is a personal project and is not affiliated with Ghostscript or any browser.*
+*PDF Auto-Compress is a personal project and is not affiliated with Ghostscript.*
