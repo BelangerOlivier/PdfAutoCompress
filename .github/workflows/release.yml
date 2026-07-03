@@ -1,0 +1,59 @@
+name: Release
+
+# Push a version tag (e.g. v1.2.0) to build the apps and create a draft GitHub Release
+# with the executables attached. You can also run it manually from the Actions tab.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Determine version from tag
+        id: ver
+        shell: pwsh
+        run: |
+          $ref = "${{ github.ref_name }}"
+          $v = if ($ref -match '^v\d') { $ref.TrimStart('v') } else { '0.0.0' }
+          "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Version: $v"
+
+      - name: Publish tray app (Windows)
+        run: dotnet publish src/PdfAutoCompress.Tray -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/tray
+
+      - name: Publish background service (Windows)
+        run: dotnet publish src/PdfAutoCompress.Service -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/service
+
+      - name: Publish CLI (Windows, Linux, macOS)
+        run: |
+          dotnet publish src/PdfAutoCompress.Cli -c Release -r win-x64   --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/cli-win
+          dotnet publish src/PdfAutoCompress.Cli -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/cli-linux
+          dotnet publish src/PdfAutoCompress.Cli -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/cli-osx
+
+      - name: Collect release assets
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force assets | Out-Null
+          Copy-Item dist/tray/PdfAutoCompress.exe            assets/PdfAutoCompress.exe
+          Copy-Item dist/service/PdfAutoCompress.Service.exe assets/PdfAutoCompress.Service.exe
+          Copy-Item dist/cli-win/pdfautocompress.exe         assets/pdfautocompress-cli-win-x64.exe
+          Copy-Item dist/cli-linux/pdfautocompress           assets/pdfautocompress-cli-linux-x64
+          Copy-Item dist/cli-osx/pdfautocompress             assets/pdfautocompress-cli-osx-arm64
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*
+          draft: true
+          generate_release_notes: true
