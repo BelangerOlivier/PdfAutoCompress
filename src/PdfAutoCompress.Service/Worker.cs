@@ -16,8 +16,7 @@ public sealed class Worker : BackgroundService
     {
         _log = log;
         _watcher.Log += m => _log.LogInformation("{Message}", m);
-        _watcher.Compressed += r =>
-            _log.LogInformation("Compressed {File} ({Percent:F1}% saved)", r.File, r.SavedPercent);
+        _watcher.Compressed += r => _log.LogInformation("Compressed {File} ({Percent:F1}% saved)", r.File, r.SavedPercent);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
