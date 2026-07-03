@@ -19,14 +19,14 @@ internal sealed class SettingsForm : Form
     private readonly ComboBox _pdfSettings = new()
     { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
     private readonly NumericUpDown _minMb = new()
-    { DecimalPlaces = 1, Minimum = 0, Maximum = 4096, Increment = 0.5M, Width = 90 };
+    { DecimalPlaces = 1, Minimum = 0, Maximum = 4096, Increment = 0.1M, Width = 90 };
     private readonly CheckBox _keepOriginal = new() { Text = "Keep original (write “-compressed.pdf” instead of overwriting)", AutoSize = true };
     private readonly CheckBox _notify = new() { Text = "Show a notification when a PDF is compressed", AutoSize = true };
-    private readonly CheckBox _startup = new() { Text = "Start automatically when I log in", AutoSize = true };
+    private readonly CheckBox _startup = new() { Text = "Launch automatically on startup", AutoSize = true };
     private readonly CheckBox _checkUpdates = new() { Text = "Check for updates on startup", AutoSize = true };
     private readonly TextBox _log = new()
-    { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Width = 430, Height = 120, Font = new Font("Consolas", 8.5f) };
-    private readonly Label _status = new() { AutoSize = true, MaximumSize = new Size(430, 0) };
+    { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Width = 525, Height = 120, Font = new Font("Consolas", 8.5f) };
+    private readonly Label _status = new() { AutoSize = true, MaximumSize = new Size(525, 0) };
 
     public SettingsForm(AppConfig config, PdfWatcher watcher, Icon icon)
     {
@@ -79,7 +79,7 @@ internal sealed class SettingsForm : Form
             row++;
         }
 
-        _pdfSettings.Items.AddRange(new object[] { "/screen", "/ebook", "/printer", "/prepress" });
+        _pdfSettings.Items.AddRange(["/screen", "/ebook", "/printer", "/prepress"]);
 
         var browseFolder = new Button { Text = "Browse…", AutoSize = true };
         browseFolder.Click += (_, _) => BrowseFolder();
@@ -87,7 +87,7 @@ internal sealed class SettingsForm : Form
         browseGs.Click += (_, _) => BrowseGhostscript();
 
         AddRow("Watch folder:", _watchFolder, browseFolder);
-        AddRow("(empty = Downloads)", new Label { AutoSize = true }, null);
+        AddRow("(empty = Downloads folder)", new Label { AutoSize = true }, null);
         AddRow("Ghostscript:", _ghostscript, browseGs);
         AddRow("(empty = auto-detect)", new Label { AutoSize = true }, null);
         AddRow("Quality:", _pdfSettings);
@@ -183,6 +183,7 @@ internal sealed class SettingsForm : Form
         using var dlg = new FolderBrowserDialog { Description = "Choose the folder to watch" };
         if (_watchFolder.Text.Length > 0 && Directory.Exists(_watchFolder.Text))
             dlg.SelectedPath = _watchFolder.Text;
+
         if (dlg.ShowDialog(this) == DialogResult.OK)
             _watchFolder.Text = dlg.SelectedPath;
     }
@@ -194,6 +195,7 @@ internal sealed class SettingsForm : Form
             Title = "Select gswin64c.exe",
             Filter = "Ghostscript console (gswin*c.exe)|gswin*c.exe|Executables (*.exe)|*.exe",
         };
+
         if (dlg.ShowDialog(this) == DialogResult.OK)
             _ghostscript.Text = dlg.FileName;
     }

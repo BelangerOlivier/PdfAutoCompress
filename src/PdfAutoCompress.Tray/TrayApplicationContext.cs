@@ -78,8 +78,6 @@ internal sealed class TrayApplicationContext : ApplicationContext
             await CheckForUpdatesAsync(interactive: false);
     }
 
-    // ---- Install / uninstall ------------------------------------------------
-
     private void MaybeOfferInstall()
     {
         if (Installer.RunningFromInstall || _config.SetupPromptShown)
@@ -99,7 +97,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         if (MessageBox.Show(
                 "Install PDF Auto-Compress on this PC?\n\n" +
                 $"It will be copied to:\n{Installer.InstallDir}\n\n" +
-                "It is also added to the Start menu, and set to start automatically when you log in",
+                "It is also added to the Start menu, and set to launch automatically on startup",
                 "Install", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
             return;
 
@@ -147,7 +145,6 @@ internal sealed class TrayApplicationContext : ApplicationContext
         if (form.ShowDialog() == DialogResult.OK)
         {
             _config = form.Result;
-            // Re-apply settings to the running watcher.
             if (!_paused) StartWatcher();
         }
         form.Dispose();
@@ -170,16 +167,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private async Task CheckForUpdatesAsync(bool interactive)
     {
-        string repo = AppConfig.UpdateRepo.Trim();
-        if (repo.Length == 0)
-        {
-            if (interactive)
-                MessageBox.Show("Set your GitHub repo (owner/name) in Settings first.",
-                    "Check for updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        UpdateInfo? info = await UpdateChecker.CheckAsync(repo);
+        UpdateInfo? info = await UpdateChecker.CheckAsync(AppConfig.UpdateRepo.Trim());
         if (info is { } u)
         {
             if (interactive)
