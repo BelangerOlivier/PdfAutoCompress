@@ -36,9 +36,6 @@ public sealed class AppConfig
     /// <summary>When started at login, wait this long before watching (lazy start).</summary>
     public int StartupDelaySeconds { get; set; } = 20;
 
-    /// <summary>True once the tray app has offered to install itself (so we ask only once).</summary>
-    public bool SetupPromptShown { get; set; }
-
     public static string DefaultDownloadsFolder()
     {
         string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

@@ -1,5 +1,3 @@
-using PdfAutoCompress.Core;
-
 namespace PdfAutoCompress.Core.Tests;
 
 public class AppConfigTests : IDisposable
@@ -24,7 +22,6 @@ public class AppConfigTests : IDisposable
             ShowNotifications = false,
             CheckForUpdates = false,
             StartupDelaySeconds = 42,
-            SetupPromptShown = true,
         };
 
         config.SaveTo(_path);
@@ -39,7 +36,6 @@ public class AppConfigTests : IDisposable
         Assert.Equal(config.ShowNotifications, loaded.ShowNotifications);
         Assert.Equal(config.CheckForUpdates, loaded.CheckForUpdates);
         Assert.Equal(config.StartupDelaySeconds, loaded.StartupDelaySeconds);
-        Assert.Equal(config.SetupPromptShown, loaded.SetupPromptShown);
     }
 
     [Fact]

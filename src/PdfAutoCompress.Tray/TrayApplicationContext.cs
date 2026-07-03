@@ -81,11 +81,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private void MaybeOfferInstall()
     {
-        if (Installer.RunningFromInstall || _config.SetupPromptShown)
+        if (Installer.IsInstalled)
             return;
-
-        _config.SetupPromptShown = true;
-        try { _config.Save(); } catch { /* non-fatal */ }
 
         OnInstallClicked();
     }
