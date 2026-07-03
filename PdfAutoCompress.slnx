@@ -5,4 +5,7 @@
     <Project Path="src/PdfAutoCompress.Service/PdfAutoCompress.Service.csproj" />
     <Project Path="src/PdfAutoCompress.Tray/PdfAutoCompress.Tray.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PdfAutoCompress.Core.Tests/PdfAutoCompress.Core.Tests.csproj" />
+  </Folder>
 </Solution>

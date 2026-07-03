@@ -22,3 +22,6 @@ jobs:
 
       - name: Build
         run: dotnet build PdfAutoCompress.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test PdfAutoCompress.slnx -c Release --no-build
