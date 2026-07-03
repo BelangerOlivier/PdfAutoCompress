@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-03
+### Bug fix
+- Fix an issue that prevented the user from being prompted to install the application upon launch.
+
 ## [1.0.0] - 2026-07-02
 ### Added
 - Automatic PDF compression that watches a folder (Downloads by default) and shrinks new PDFs
@@ -13,6 +17,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows tray app with a settings window, autostart at login, "compressed" notifications,
   pause/resume, and a GitHub update check.
 - Windows background service and a cross-platform command-line watcher that share the same engine.
-
-[Unreleased]: https://github.com/BelangerOlivier/PdfAutoCompress/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/BelangerOlivier/PdfAutoCompress/releases/tag/v1.0.0
