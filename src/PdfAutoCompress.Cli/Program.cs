@@ -5,7 +5,7 @@ Console.WriteLine("--------------------------------");
 
 AppConfig config = AppConfig.Load();
 using var watcher = new PdfWatcher();
-watcher.Log += Console.WriteLine;
+watcher.Logger.Log += Console.WriteLine;
 
 string? error = watcher.Start(config);
 if (error != null)

@@ -39,6 +39,12 @@ public sealed class AppConfig
     /// <summary>True once the tray app has offered to install itself (so we ask only once).</summary>
     public bool SetupPromptShown { get; set; }
 
+    public static string DefaultDownloadsFolder()
+    {
+        string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        return Path.Combine(home, "Downloads");
+    }
+
     /// <summary>Per-user settings file: %APPDATA%\PdfAutoCompress\appsettings.json.</summary>
     [JsonIgnore]
     public static string ConfigPath => Path.Combine(

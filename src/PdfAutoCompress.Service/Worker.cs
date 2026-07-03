@@ -15,7 +15,7 @@ public sealed class Worker : BackgroundService
     public Worker(ILogger<Worker> log)
     {
         _log = log;
-        _watcher.Log += m => _log.LogInformation("{Message}", m);
+        _watcher.Logger.Log += m => _log.LogInformation("{Message}", m);
         _watcher.Compressed += r => _log.LogInformation("Compressed {File} ({Percent:F1}% saved)", r.File, r.SavedPercent);
     }
 

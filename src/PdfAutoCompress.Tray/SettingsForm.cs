@@ -47,8 +47,8 @@ internal sealed class SettingsForm : Form
         BuildUi();
         LoadFromConfig();
 
-        _watcher.Log += OnWatcherLog;
-        FormClosed += (_, _) => _watcher.Log -= OnWatcherLog;
+        _watcher.Logger.Log += OnWatcherLog;
+        FormClosed += (_, _) => _watcher.Logger.Log -= OnWatcherLog;
     }
 
     private void BuildUi()
@@ -145,10 +145,10 @@ internal sealed class SettingsForm : Form
         _checkUpdates.Checked = _config.CheckForUpdates;
         _startup.Checked = StartupManager.IsEnabled();
 
-        foreach (string line in _watcher.RecentLog)
+        foreach (string line in _watcher.Logger.RecentLog)
             _log.AppendText(line + Environment.NewLine);
 
-        string gs = PdfWatcher.ResolveGhostscript(_config.GhostscriptPath);
+        string gs = GhostscriptChecker.ResolveGhostscript(_config.GhostscriptPath);
         _status.Text = $"Version {UpdateChecker.CurrentVersion()}   •   " +
             (gs.Length > 0 ? $"Ghostscript: {gs}" : "Ghostscript: NOT FOUND — install it or set the path above.");
     }
