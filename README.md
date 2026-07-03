@@ -33,12 +33,16 @@ PDF Auto-Compress uses a free tool called **Ghostscript** to do the actual compr
 
 1. Go to the **[Releases page](https://github.com/BelangerOlivier/PdfAutoCompress/releases)**.
 2. Download **`PdfAutoCompress.exe`** from the latest release.
-3. Put it anywhere you like (for example, your Documents folder) and **double-click it**.
+3. **Double-click it.** The first time, it offers to **install itself on your PC** — click
+   **Yes**. It copies itself to a permanent per-user folder, adds a Start-menu entry, and sets
+   itself to start with Windows. After that you can **delete the file you downloaded**.
 
 That's it — a small red **PDF** icon appears in your system tray. It's now watching your Downloads folder.
 
 > 💡 The first time Windows may show a "Windows protected your PC" screen because the app isn't
 > code-signed. Click **More info → Run anyway**.
+>
+> To remove it later, right-click the tray icon and choose **Uninstall…**.
 
 ### Step 3 — Try it
 

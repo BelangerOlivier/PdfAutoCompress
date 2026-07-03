@@ -50,6 +50,9 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _pauseItem = new ToolStripMenuItem("Pause", null, (_, _) => TogglePause());
         var checkUpdates = new ToolStripMenuItem("Check for updates…", null,
             async (_, _) => await CheckForUpdatesAsync(interactive: true));
+        ToolStripMenuItem setup = Installer.RunningFromInstall
+            ? new ToolStripMenuItem("Uninstall…", null, (_, _) => OnUninstallClicked())
+            : new ToolStripMenuItem("Install on this PC…", null, (_, _) => OnInstallClicked());
         var quit = new ToolStripMenuItem("Quit", null, (_, _) => ExitThread());
 
         menu.Items.Add(settings);
@@ -57,6 +60,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_pauseItem);
         menu.Items.Add(checkUpdates);
+        menu.Items.Add(setup);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(quit);
 
@@ -71,8 +75,66 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         StartWatcher();
 
+        if (!startedAtLogin)
+            MaybeOfferInstall();
+
         if (_config.CheckForUpdates)
             await CheckForUpdatesAsync(interactive: false);
+    }
+
+    // ---- Install / uninstall ------------------------------------------------
+
+    private void MaybeOfferInstall()
+    {
+        if (Installer.RunningFromInstall || _config.SetupPromptShown)
+            return;
+
+        _config.SetupPromptShown = true;
+        try { _config.Save(); } catch { /* non-fatal */ }
+
+        OnInstallClicked();
+    }
+
+    private void OnInstallClicked()
+    {
+        if (Installer.RunningFromInstall)
+            return;
+
+        if (MessageBox.Show(
+                "Install PDF Auto-Compress on this PC?\n\n" +
+                $"It will be copied to:\n{Installer.InstallDir}\n\n" +
+                "…added to the Start menu, and set to start automatically when you log in — " +
+                "so you can safely delete the file you downloaded.",
+                "Install", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            return;
+
+        try
+        {
+            Installer.Install();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Install failed:\n" + ex.Message, "PDF Auto-Compress",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        _tray.Visible = false;
+        ExitThread(); // the installed copy relaunches once this process exits
+    }
+
+    private void OnUninstallClicked()
+    {
+        if (MessageBox.Show(
+                "Remove PDF Auto-Compress from this PC?\n\n" +
+                "It will stop starting with Windows and its installed files will be deleted. " +
+                "Your settings are kept.",
+                "Uninstall", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            return;
+
+        Installer.Uninstall();
+        _tray.Visible = false;
+        ExitThread();
     }
 
     private void StartWatcher()

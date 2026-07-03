@@ -4,7 +4,8 @@ using System.Text.Json.Serialization;
 namespace PdfAutoCompress.Core;
 
 /// <summary>
-/// User settings, loaded from and saved to appsettings.json next to the executable.
+/// User settings. Saved to a per-user file under %APPDATA% so the app can run from a
+/// read-only location (e.g. Program Files) and doesn't litter the folder it launched from.
 /// Shared by every front-end (tray app, Windows service, CLI).
 /// </summary>
 public sealed class AppConfig
@@ -26,8 +27,18 @@ public sealed class AppConfig
     /// <summary>When started at login, wait this long before watching (lazy start).</summary>
     public int StartupDelaySeconds { get; set; } = 20;
 
+    /// <summary>True once the tray app has offered to install itself (so we ask only once).</summary>
+    public bool SetupPromptShown { get; set; }
+
+    /// <summary>Per-user settings file: %APPDATA%\PdfAutoCompress\appsettings.json.</summary>
     [JsonIgnore]
-    public static string ConfigPath => Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+    public static string ConfigPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "PdfAutoCompress", "appsettings.json");
+
+    /// <summary>Optional settings file shipped next to the executable (used as defaults).</summary>
+    [JsonIgnore]
+    private static string BundledPath => Path.Combine(AppContext.BaseDirectory, "appsettings.json");
 
     private static readonly JsonSerializerOptions s_read = new()
     {
@@ -44,23 +55,28 @@ public sealed class AppConfig
 
     public static AppConfig Load()
     {
-        try
+        // Prefer the per-user file; fall back to a file bundled next to the exe; else defaults.
+        foreach (string path in new[] { ConfigPath, BundledPath })
         {
-            if (File.Exists(ConfigPath))
+            try
             {
-                string json = File.ReadAllText(ConfigPath);
-                return JsonSerializer.Deserialize<AppConfig>(json, s_read) ?? new AppConfig();
+                if (File.Exists(path))
+                {
+                    string json = File.ReadAllText(path);
+                    return JsonSerializer.Deserialize<AppConfig>(json, s_read) ?? new AppConfig();
+                }
             }
-        }
-        catch
-        {
-            // Fall through to defaults on any parse/IO error.
+            catch
+            {
+                // Try the next candidate on any parse/IO error.
+            }
         }
         return new AppConfig();
     }
 
     public void Save()
     {
+        Directory.CreateDirectory(Path.GetDirectoryName(ConfigPath)!);
         string json = JsonSerializer.Serialize(this, s_write);
         File.WriteAllText(ConfigPath, json);
     }

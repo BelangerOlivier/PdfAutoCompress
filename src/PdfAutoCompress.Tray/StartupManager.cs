@@ -13,7 +13,7 @@ internal static class StartupManager
 
     public const string StartupArg = "--startup";
 
-    private static string ExePath => Environment.ProcessPath ?? Path.Combine(
+    private static string CurrentExe => Environment.ProcessPath ?? Path.Combine(
         AppContext.BaseDirectory, "PdfAutoCompress.exe");
 
     public static bool IsEnabled()
@@ -22,11 +22,13 @@ internal static class StartupManager
         return key?.GetValue(ValueName) is string;
     }
 
-    public static void SetEnabled(bool enabled)
+    /// <summary>Enable/disable autostart. When enabling, points at <paramref name="exePath"/>
+    /// (defaults to the running executable).</summary>
+    public static void SetEnabled(bool enabled, string? exePath = null)
     {
         using RegistryKey key = Registry.CurrentUser.CreateSubKey(RunKey);
         if (enabled)
-            key.SetValue(ValueName, $"\"{ExePath}\" {StartupArg}");
+            key.SetValue(ValueName, $"\"{exePath ?? CurrentExe}\" {StartupArg}");
         else
             key.DeleteValue(ValueName, throwOnMissingValue: false);
     }
