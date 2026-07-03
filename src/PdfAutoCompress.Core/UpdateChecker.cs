@@ -7,7 +7,7 @@ namespace PdfAutoCompress.Core;
 public readonly record struct UpdateInfo(Version Latest, string Tag, string HtmlUrl);
 
 /// <summary>
-/// Checks a GitHub repository's latest release and compares its tag to the running version.
+/// Checks the GitHub repository's latest release and compares its tag to the running version.
 /// </summary>
 public static class UpdateChecker
 {
@@ -60,15 +60,14 @@ public static class UpdateChecker
         }
         catch
         {
-            return null; // offline, rate-limited, repo missing, etc. — fail quietly
+            return null; // fail quietly
         }
     }
 
     private static bool TryParseVersion(string tag, out Version version)
     {
         string s = tag.TrimStart('v', 'V').Trim();
-        // Keep only leading numeric.dotted part (drops pre-release suffixes like -beta).
-        int cut = s.IndexOfAny(new[] { '-', '+', ' ' });
+        int cut = s.IndexOfAny(['-', '+', ' ']);
         if (cut >= 0) s = s[..cut];
         return Version.TryParse(s, out version!);
     }

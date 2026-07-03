@@ -12,10 +12,19 @@ public sealed class AppConfig
 {
     public const string UpdateRepo = "BelangerOlivier/PdfAutoCompress";
 
+    /// <summary>Determines the folder to watch for PDF files.</summary>
     public string WatchFolder { get; set; } = "";
+
+    /// <summary>Determines the path to the Ghostscript executable.</summary>
     public string GhostscriptPath { get; set; } = "";
+
+    /// <summary>Determines the PDF compression settings. /ebook is the recommended setting.</summary>
     public string PdfSettings { get; set; } = "/ebook";
+
+    /// <summary>Minimum file size (in bytes) to consider for compression. 0 means no minimum.</summary>
     public long MinSizeBytes { get; set; } = 1024 * 1024;
+
+    /// <summary>When true, the original PDF is kept alongside the compressed copy.</summary>
     public bool KeepOriginal { get; set; }
 
     /// <summary>Show a tray balloon when a PDF is compressed (tray app only).</summary>

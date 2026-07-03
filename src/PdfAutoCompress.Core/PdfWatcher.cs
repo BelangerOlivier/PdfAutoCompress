@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace PdfAutoCompress.Core;
 
@@ -52,7 +51,7 @@ public sealed class PdfWatcher : IDisposable
         if (!Directory.Exists(WatchFolder))
             return $"Watch folder does not exist:\n{WatchFolder}";
 
-        ResolvedGhostscript = ResolveGhostscript(config.GhostscriptPath);
+        ResolvedGhostscript = GhostscriptChecker.ResolveGhostscript(config.GhostscriptPath);
         if (ResolvedGhostscript.Length == 0)
             return "Ghostscript was not found.\n\nInstall it from " +
                    "https://ghostscript.com/releases/gsdnld.html, or set its path in settings.";
@@ -246,57 +245,9 @@ public sealed class PdfWatcher : IDisposable
         return u == 0 ? $"{bytes} B" : $"{v:0.#} {units[u]}";
     }
 
-    // ---- Ghostscript / folder resolution ------------------------------------
-
     public static string DefaultDownloadsFolder()
     {
         string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         return Path.Combine(home, "Downloads");
-    }
-
-    public static string ResolveGhostscript(string configured)
-    {
-        if (!string.IsNullOrWhiteSpace(configured))
-        {
-            string p = Environment.ExpandEnvironmentVariables(configured);
-            return File.Exists(p) ? p : "";
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            foreach (string root in new[] { @"C:\Program Files\gs", @"C:\Program Files (x86)\gs" })
-            {
-                if (!Directory.Exists(root)) continue;
-                foreach (string dir in Directory.GetDirectories(root)
-                             .OrderByDescending(d => d, StringComparer.OrdinalIgnoreCase))
-                {
-                    foreach (string exe in new[] { "gswin64c.exe", "gswin32c.exe" })
-                    {
-                        string candidate = Path.Combine(dir, "bin", exe);
-                        if (File.Exists(candidate)) return candidate;
-                    }
-                }
-            }
-            return WhichOnPath("gswin64c.exe") ?? WhichOnPath("gswin32c.exe") ?? "";
-        }
-
-        return WhichOnPath("gs") ?? "";
-    }
-
-    private static string? WhichOnPath(string exe)
-    {
-        string? pathVar = Environment.GetEnvironmentVariable("PATH");
-        if (string.IsNullOrEmpty(pathVar)) return null;
-        foreach (string dir in pathVar.Split(Path.PathSeparator))
-        {
-            if (dir.Length == 0) continue;
-            try
-            {
-                string candidate = Path.Combine(dir, exe);
-                if (File.Exists(candidate)) return candidate;
-            }
-            catch { /* ignore malformed PATH entries */ }
-        }
-        return null;
     }
 }
