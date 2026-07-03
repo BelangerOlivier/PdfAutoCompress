@@ -10,11 +10,10 @@
     <AssemblyName>PdfAutoCompress</AssemblyName>
     <RootNamespace>PdfAutoCompress.Tray</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
 
-    <!-- Version shown in the UI and compared against the latest GitHub release. -->
     <Version>1.0.0</Version>
 
-    <!-- Single self-contained exe when publishing (no .NET runtime needed on the target). -->
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(PublishSingleFile)' == 'true'">win-x64</RuntimeIdentifier>
     <SelfContained Condition="'$(PublishSingleFile)' == 'true'">true</SelfContained>
     <PublishTrimmed Condition="'$(PublishSingleFile)' == 'true'">false</PublishTrimmed>
@@ -24,6 +23,7 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <EmbeddedResource Include="app.ico" />
   </ItemGroup>
 
   <ItemGroup>

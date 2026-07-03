@@ -10,7 +10,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
 {
     private readonly NotifyIcon _tray;
     private readonly Icon _icon;
-    private readonly IntPtr _iconHandle;
+    private readonly Icon _trayIcon;
     private readonly PdfWatcher _watcher = new();
     private readonly SynchronizationContext _ui = SynchronizationContext.Current ?? new();
 
@@ -22,11 +22,12 @@ internal sealed class TrayApplicationContext : ApplicationContext
     public TrayApplicationContext(string[] args)
     {
         _config = AppConfig.Load();
-        _icon = IconFactory.Create(out _iconHandle);
+        _icon = IconFactory.Create();
+        _trayIcon = IconFactory.Small(_icon);
 
         _tray = new NotifyIcon
         {
-            Icon = _icon,
+            Icon = _trayIcon,
             Visible = true,
             Text = "PDF Auto-Compress",
             ContextMenuStrip = BuildMenu(),
@@ -203,8 +204,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
             _watcher.Dispose();
             _tray.Visible = false;
             _tray.Dispose();
+            _trayIcon.Dispose();
             _icon.Dispose();
-            IconFactory.Destroy(_iconHandle);
             _settingsForm?.Dispose();
         }
         base.Dispose(disposing);
