@@ -64,7 +64,7 @@ public static class UpdateChecker
         }
     }
 
-    private static bool TryParseVersion(string tag, out Version version)
+    internal static bool TryParseVersion(string tag, out Version version)
     {
         string s = tag.TrimStart('v', 'V').Trim();
         int cut = s.IndexOfAny(['-', '+', ' ']);

@@ -12,7 +12,7 @@ public readonly record struct CompressResult(
 /// </summary>
 public sealed class PdfWatcher : IDisposable
 {
-    private const string CompressedSuffix = "-compressed.pdf";
+    private const string CompressedSuffix = PdfCompressor.CompressedSuffix;
 
     private readonly ConcurrentDictionary<string, DateTime> _busy =
         new(StringComparer.OrdinalIgnoreCase);
@@ -102,13 +102,13 @@ public sealed class PdfWatcher : IDisposable
         }
     }
 
-    private static bool IsFileCompressed(string path)
+    internal static bool IsFileCompressed(string path)
     {
         string filename = Path.GetFileName(path);
         return filename.EndsWith(CompressedSuffix, StringComparison.OrdinalIgnoreCase);
     }
 
-    private bool IsFileHandled(string path) =>
+    internal bool IsFileHandled(string path) =>
         (_busy.TryGetValue(path, out var since) && DateTime.UtcNow - since < TimeSpan.FromSeconds(30))
         || !_busy.TryAdd(path, DateTime.UtcNow);
 
@@ -129,44 +129,33 @@ public sealed class PdfWatcher : IDisposable
 
         Logger.Emit($"Compressing {Path.GetFileName(src)} ({Format(origSize)})…");
 
-        string tmp = src + ".gstmp"; // not *.pdf, so it can't retrigger the watcher
+        // The compressor writes to <src>.gstmp then moves it onto the destination; pre-mark
+        // the destination as busy so we ignore the file event that move produces.
         string dest = _config.KeepOriginal
             ? Path.Combine(Path.GetDirectoryName(src)!,
                            Path.GetFileNameWithoutExtension(src) + CompressedSuffix)
             : src;
+        _busy[dest] = DateTime.UtcNow;
 
         try
         {
-            (int exit, string stderr) = await GhostscriptCompress.RunGhostscriptAsync(
-                ResolvedGhostscript, src, tmp, _config);
-            if (exit != 0 || !File.Exists(tmp))
+            CompressResult? result = await PdfCompressor.CompressFileAsync(
+                src, _config, ResolvedGhostscript);
+            if (result is { } r)
             {
-                string detail = stderr.Length > 300 ? stderr[..300] : stderr;
-                Logger.Emit($"  Ghostscript failed (exit {exit}). {detail}");
-                return;
-            }
-
-            long newSize = new FileInfo(tmp).Length;
-            if (newSize < origSize)
-            {
-                _busy[dest] = DateTime.UtcNow; // ignore the resulting file event
-                File.Move(tmp, dest, overwrite: true);
-                double savedPct = 100.0 * (1 - (double)newSize / origSize);
-                Logger.Emit($"  Compressed {Path.GetFileName(dest)}: " +
-                     $"{Format(origSize)} → {Format(newSize)} ({savedPct:F1}% saved)");
-                Compressed?.Invoke(new CompressResult(dest, origSize, newSize, savedPct));
+                Logger.Emit($"  Compressed {Path.GetFileName(r.File)}: " +
+                     $"{Format(r.OriginalBytes)} → {Format(r.NewBytes)} ({r.SavedPercent:F1}% saved)");
+                Compressed?.Invoke(r);
             }
             else
             {
                 Logger.Emit($"  Skipped {Path.GetFileName(src)}: no size gain.");
             }
         }
-        finally
+        catch (GhostscriptException gx)
         {
-            if (File.Exists(tmp))
-            {
-                try { File.Delete(tmp); } catch { /* best effort */ }
-            }
+            string detail = gx.Stderr.Length > 300 ? gx.Stderr[..300] : gx.Stderr;
+            Logger.Emit($"  Ghostscript failed (exit {gx.ExitCode}). {detail}");
         }
     }
 
@@ -193,7 +182,7 @@ public sealed class PdfWatcher : IDisposable
         return false;
     }
 
-    private static string Format(long bytes)
+    internal static string Format(long bytes)
     {
         string[] units = { "B", "KB", "MB", "GB" };
         double v = bytes;

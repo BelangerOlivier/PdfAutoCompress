@@ -73,27 +73,39 @@ public sealed class AppConfig
         // Prefer the per-user file; fall back to a file bundled next to the exe; else defaults.
         foreach (string path in new[] { ConfigPath, BundledPath })
         {
-            try
-            {
-                if (File.Exists(path))
-                {
-                    string json = File.ReadAllText(path);
-                    return JsonSerializer.Deserialize<AppConfig>(json, s_read) ?? new AppConfig();
-                }
-            }
-            catch
-            {
-                // Try the next candidate on any parse/IO error.
-            }
+            AppConfig? loaded = LoadFrom(path);
+            if (loaded != null)
+                return loaded;
         }
         return new AppConfig();
     }
 
-    public void Save()
+    /// <summary>Reads a config from a specific file, or null if it's missing/unreadable.</summary>
+    internal static AppConfig? LoadFrom(string path)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(ConfigPath)!);
+        try
+        {
+            if (File.Exists(path))
+            {
+                string json = File.ReadAllText(path);
+                return JsonSerializer.Deserialize<AppConfig>(json, s_read) ?? new AppConfig();
+            }
+        }
+        catch
+        {
+            // Treat parse/IO errors as "not available" so callers can fall back.
+        }
+        return null;
+    }
+
+    public void Save() => SaveTo(ConfigPath);
+
+    /// <summary>Writes this config to a specific file, creating the directory if needed.</summary>
+    internal void SaveTo(string path)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         string json = JsonSerializer.Serialize(this, s_write);
-        File.WriteAllText(ConfigPath, json);
+        File.WriteAllText(path, json);
     }
 
     public AppConfig Clone() => (AppConfig)MemberwiseClone();
