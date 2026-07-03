@@ -2,10 +2,6 @@ using PdfAutoCompress.Core;
 
 namespace PdfAutoCompress.Tray;
 
-/// <summary>
-/// Owns the tray icon, menu, background engine, notifications and update checks.
-/// This is the app: there is no main window, just the notification-area icon.
-/// </summary>
 internal sealed class TrayApplicationContext : ApplicationContext
 {
     private readonly NotifyIcon _tray;
@@ -13,6 +9,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly Icon _trayIcon;
     private readonly PdfWatcher _watcher = new();
     private readonly SynchronizationContext _ui = SynchronizationContext.Current ?? new();
+
+    private readonly System.Windows.Forms.Timer _startupTimer = new() { Interval = 1 };
 
     private AppConfig _config;
     private SettingsForm? _settingsForm;
@@ -37,7 +35,18 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _watcher.Compressed += OnCompressed;
 
         bool startedAtLogin = args.Contains(StartupManager.StartupArg, StringComparer.OrdinalIgnoreCase);
-        _ = StartAsync(startedAtLogin);
+
+        // Defer startup work until the message loop is actually running. Doing it in the
+        // constructor would run the modal install prompt — and ExitThread() — before
+        // Application.Run starts pumping, so the exit request would be lost and the process
+        // would keep running. A one-shot WinForms timer fires on the UI thread once the loop
+        // is up, making the install → quit → relaunch hand-off reliable.
+        _startupTimer.Tick += async (_, _) =>
+        {
+            _startupTimer.Stop();
+            await StartAsync(startedAtLogin);
+        };
+        _startupTimer.Start();
     }
 
     private ContextMenuStrip BuildMenu()
@@ -197,6 +206,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         if (disposing)
         {
+            _startupTimer.Dispose();
             _watcher.Compressed -= OnCompressed;
             _watcher.Dispose();
             _tray.Visible = false;

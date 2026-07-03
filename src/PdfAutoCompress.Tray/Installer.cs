@@ -12,6 +12,8 @@ internal static class Installer
 {
     public const string AppName = "PDF Auto-Compress";
 
+    public const string RelaunchArg = "--relaunch";
+
     public static string InstallDir => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Programs", "PdfAutoCompress");
@@ -23,40 +25,35 @@ internal static class Installer
     private static string ShortcutPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.Programs), AppName + ".lnk");
 
-    /// <summary>True when the running exe already lives in the install folder.</summary>
     public static bool IsInstalled =>
         string.Equals(Path.GetFullPath(CurrentExe), Path.GetFullPath(InstalledExe),
                       StringComparison.OrdinalIgnoreCase)
         || File.Exists(InstalledExe);
 
-    /// <summary>True when this exe is the installed copy (already running from InstallDir).</summary>
     public static bool RunningFromInstall =>
         string.Equals(Path.GetFullPath(CurrentExe), Path.GetFullPath(InstalledExe),
                       StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Copies this exe into the install folder, adds a Start Menu shortcut, enables autostart,
-    /// and launches the installed copy once this process exits. Caller should exit afterwards.
-    /// </summary>
     public static void Install()
     {
+        // Create the directory and copy the exe.
         Directory.CreateDirectory(InstallDir);
         File.Copy(CurrentExe, InstalledExe, overwrite: true);
 
+        // Create a Start Menu shortcut and enable autostart for the installed copy.
         TryCreateShortcut();
         try { StartupManager.SetEnabled(true, InstalledExe); } catch { /* non-fatal */ }
 
-        // Relaunch the installed copy after we exit (so the single-instance mutex is free).
-        RunAfterExit($"start \"\" \"{InstalledExe}\"");
+        // Start the installed copy now.
+        Process.Start(new ProcessStartInfo(InstalledExe, RelaunchArg) { UseShellExecute = true });
     }
 
-    /// <summary>
-    /// Removes autostart and the Start Menu shortcut, then deletes the install folder once
-    /// this process exits. Caller should exit afterwards.
-    /// </summary>
     public static void Uninstall()
     {
+        // Remove the autostart entry
         try { StartupManager.SetEnabled(false); } catch { /* ignore */ }
+
+        // Delete the start menu shortcut
         try { if (File.Exists(ShortcutPath)) File.Delete(ShortcutPath); } catch { /* ignore */ }
 
         // Delete the install folder after we exit (the exe is locked while running).

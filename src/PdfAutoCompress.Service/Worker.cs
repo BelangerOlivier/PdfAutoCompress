@@ -4,8 +4,7 @@ namespace PdfAutoCompress.Service;
 
 /// <summary>
 /// Hosts the <see cref="PdfWatcher"/> engine as a long-running background service.
-/// Runs as a Windows Service when installed, or as a plain console app otherwise
-/// (works on any OS the .NET host supports).
+/// Runs as a Windows Service when installed, or as a plain console app otherwise.
 /// </summary>
 public sealed class Worker : BackgroundService
 {

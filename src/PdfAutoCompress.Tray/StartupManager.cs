@@ -2,10 +2,6 @@ using Microsoft.Win32;
 
 namespace PdfAutoCompress.Tray;
 
-/// <summary>
-/// Adds/removes an HKCU "Run" entry so the app starts at login (no admin needed).
-/// The command includes a --startup flag so the app can delay work at boot (lazy start).
-/// </summary>
 internal static class StartupManager
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";

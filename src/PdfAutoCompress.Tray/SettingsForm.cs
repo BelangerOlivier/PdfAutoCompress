@@ -3,10 +3,6 @@ using PdfAutoCompress.Core;
 
 namespace PdfAutoCompress.Tray;
 
-/// <summary>
-/// Small settings window: edit config, toggle autostart, view recent activity, check updates.
-/// Edits a clone; on OK the caller reads <see cref="Result"/> and restarts the watcher.
-/// </summary>
 internal sealed class SettingsForm : Form
 {
     private readonly AppConfig _config;
