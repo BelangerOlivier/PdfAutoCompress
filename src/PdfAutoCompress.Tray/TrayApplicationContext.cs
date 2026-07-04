@@ -15,7 +15,6 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private AppConfig _config;
     private SettingsForm? _settingsForm;
     private ToolStripMenuItem _pauseItem = null!;
-    private ToolStripMenuItem _uninstallItem = null!;
     private bool _paused;
 
     public TrayApplicationContext(string[] args)
@@ -37,11 +36,9 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         bool startedAtLogin = args.Contains(StartupManager.StartupArg, StringComparer.OrdinalIgnoreCase);
 
-        // Defer startup work until the message loop is actually running. Doing it in the
-        // constructor would run the modal install prompt — and ExitThread() — before
-        // Application.Run starts pumping, so the exit request would be lost and the process
-        // would keep running. A one-shot WinForms timer fires on the UI thread once the loop
-        // is up, making the install → quit → relaunch hand-off reliable.
+        // Defer startup work until the message loop is actually running, so any modal dialog
+        // (e.g. the update-available prompt) has a pumping message loop behind it. A one-shot
+        // WinForms timer fires on the UI thread once the loop is up.
         _startupTimer.Tick += async (_, _) =>
         {
             _startupTimer.Stop();
@@ -61,7 +58,6 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _pauseItem = new ToolStripMenuItem("Pause", null, (_, _) => TogglePause());
         var checkUpdates = new ToolStripMenuItem("Check for updates…", null,
             async (_, _) => await CheckForUpdatesAsync(interactive: true));
-        _uninstallItem = new ToolStripMenuItem("Uninstall…", null, (_, _) => OnUninstallClicked());
         var quit = new ToolStripMenuItem("Quit", null, (_, _) => ExitThread());
 
         menu.Items.Add(settings);
@@ -70,14 +66,9 @@ internal sealed class TrayApplicationContext : ApplicationContext
         menu.Items.Add(_pauseItem);
         menu.Items.Add(checkUpdates);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(_uninstallItem);
         menu.Items.Add(quit);
 
-        menu.Opening += (_, _) =>
-        {
-            _pauseItem.Text = _paused ? "Resume" : "Pause";
-            _uninstallItem.Visible = Installer.IsInstalled;
-        };
+        menu.Opening += (_, _) => _pauseItem.Text = _paused ? "Resume" : "Pause";
         return menu;
     }
 
@@ -88,71 +79,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         StartWatcher();
 
-        if (!startedAtLogin)
-            MaybeOfferInstall();
-
         if (_config.CheckForUpdates)
             await CheckForUpdatesAsync(interactive: false);
-    }
-
-    private void MaybeOfferInstall()
-    {
-        if (Installer.IsInstalled)
-            return;
-
-        OnInstallClicked();
-    }
-
-    private void OnInstallClicked()
-    {
-        if (Installer.RunningFromInstall)
-            return;
-
-        if (MessageBox.Show(
-                "Install PDF Auto-Compress on this PC?\n\n" +
-                $"It will be copied to:\n{Installer.InstallDir}\n\n" +
-                "It is also added to the Start menu, and set to launch automatically on startup",
-                "Install", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-            return;
-
-        try
-        {
-            Installer.Install();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Install failed:\n" + ex.Message, "PDF Auto-Compress",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-        }
-
-        _tray.Visible = false;
-        ExitThread(); // the installed copy relaunches once this process exits
-    }
-
-    private void OnUninstallClicked()
-    {
-        if (MessageBox.Show(
-                "Uninstall PDF Auto-Compress from this PC?\n\n" +
-                "This removes it from startup, deletes the Start-menu shortcut, and deletes:\n" +
-                $"{Installer.InstallDir}\n\n" +
-                "Your settings are kept. The app will close now.",
-                "Uninstall", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
-            return;
-
-        try
-        {
-            Installer.Uninstall();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Uninstall failed:\n" + ex.Message, "PDF Auto-Compress",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-        }
-
-        _tray.Visible = false;
-        ExitThread(); // the install folder is deleted once this process exits
     }
 
     private void StartWatcher()

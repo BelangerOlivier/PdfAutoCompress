@@ -32,17 +32,22 @@ PDF Auto-Compress uses a free tool called **Ghostscript** to do the actual compr
 ### Step 2 — Download PDF Auto-Compress
 
 1. Go to the **[Releases page](https://github.com/BelangerOlivier/PdfAutoCompress/releases)**.
-2. Download **`PdfAutoCompress.exe`** from the latest release.
-3. **Double-click it.** The first time, it offers to **install itself on your PC** — click
-   **Yes**. It copies itself to a permanent per-user folder, adds a Start-menu entry, and sets
-   itself to start with Windows. After that you can **delete the file you downloaded**.
+2. Download **`PdfAutoCompressSetup.exe`** from the latest release.
+3. **Run it.** The installer sets everything up for you — no admin rights needed. It installs to a
+   per-user folder, adds a Start-menu entry, and (optional) sets the app to start with Windows.
+   When it finishes, PDF Auto-Compress launches automatically.
 
 That's it — a small red **PDF** icon appears in your system tray. It's now watching your Downloads folder.
 
-> 💡 The first time Windows may show a "Windows protected your PC" screen because the app isn't
-> code-signed. Click **More info → Run anyway**.
+> 💡 The first time Windows may show a "Windows protected your PC" screen because the installer
+> isn't code-signed. Click **More info → Run anyway**.
 >
-> To remove it later, right-click the tray icon and choose **Uninstall…**.
+> **Updating** is just as easy: download the newer `PdfAutoCompressSetup.exe` and run it. It closes
+> the running app, upgrades it in place, and restarts it — no need to quit or uninstall first.
+>
+> **To remove it later:** open **Settings ▸ Apps ▸ Installed apps** (or *Add or remove programs*),
+> find **PDF Auto-Compress**, and click **Uninstall** — or use the Start-menu uninstaller. Your
+> settings are kept.
 
 ### Step 3 — Try it
 
