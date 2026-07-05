@@ -108,9 +108,7 @@ public sealed class PdfWatcher : IDisposable
         return filename.EndsWith(CompressedSuffix, StringComparison.OrdinalIgnoreCase);
     }
 
-    internal bool IsFileHandled(string path) =>
-        (_busy.TryGetValue(path, out var since) && DateTime.UtcNow - since < TimeSpan.FromSeconds(30))
-        || !_busy.TryAdd(path, DateTime.UtcNow);
+    internal bool IsFileHandled(string path) => !_busy.TryAdd(path, DateTime.UtcNow);
 
     private async Task ForgetLater(string path)
     {
