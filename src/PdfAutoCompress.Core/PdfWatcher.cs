@@ -185,7 +185,7 @@ public sealed class PdfWatcher : IDisposable
 
     internal static string Format(long bytes)
     {
-        string[] units = { "B", "KB", "MB", "GB" };
+        string[] units = ["B", "KB", "MB", "GB"];
         double v = bytes;
         int u = 0;
         while (v >= 1024 && u < units.Length - 1) { v /= 1024; u++; }
