@@ -143,19 +143,19 @@ public sealed class PdfWatcher : IDisposable
                 src, _config, ResolvedGhostscript);
             if (result is { } r)
             {
-                Logger.Emit($"  Compressed {Path.GetFileName(r.File)}: " +
+                Logger.Emit($"Compressed {Path.GetFileName(r.File)}: " +
                      $"{Format(r.OriginalBytes)} → {Format(r.NewBytes)} ({r.SavedPercent:F1}% saved)");
                 Compressed?.Invoke(r);
             }
             else
             {
-                Logger.Emit($"  Skipped {Path.GetFileName(src)}: no size gain.");
+                Logger.Emit($"Skipped {Path.GetFileName(src)}: no size gain.");
             }
         }
         catch (GhostscriptException gx)
         {
             string detail = gx.Stderr.Length > 300 ? gx.Stderr[..300] : gx.Stderr;
-            Logger.Emit($"  Ghostscript failed (exit {gx.ExitCode}). {detail}");
+            Logger.Emit($"Ghostscript failed (exit {gx.ExitCode}). {detail}");
         }
     }
 
