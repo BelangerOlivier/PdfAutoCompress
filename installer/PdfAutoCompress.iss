@@ -3,8 +3,8 @@
 ; Build (version injected by CI):
 ;   ISCC /DMyAppVersion=1.2.3 installer\PdfAutoCompress.iss
 ;
-; Expects the published single-file tray exe at ..\dist\tray\PdfAutoCompress.exe
-; (see .github\workflows\release.yml). Produces ..\dist\installer\PdfAutoCompressSetup.exe.
+; Expects the published tray output folder at ..\dist\tray\ (self-contained, not single-file;
+; see .github\workflows\release.yml). Produces ..\dist\installer\PdfAutoCompressSetup.exe.
 
 #ifndef MyAppVersion
   #define MyAppVersion "1.0.3"
@@ -48,7 +48,7 @@ SolidCompression=yes
 Name: "startup"; Description: "Launch automatically when I sign in to Windows"; GroupDescription: "Startup:"
 
 [Files]
-Source: "..\dist\tray\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\dist\tray\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

@@ -3,7 +3,7 @@
 ### Features
 
 - Add a compression marker to the compressed pdf to avoid compressing a file that has already been compressed, renamed or copied.
-- Reduced the file size of the Core library and the Tray project (from ~115MB to ~50MB).
+- Reduced the file size of the Core library and the Tray project by half.
 
 ### Bug fixes
 

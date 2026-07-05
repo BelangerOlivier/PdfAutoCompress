@@ -32,7 +32,7 @@ jobs:
           Write-Host "Version: $v"
 
       - name: Publish tray app (Windows)
-        run: dotnet publish src/PdfAutoCompress.Tray -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/tray
+        run: dotnet publish src/PdfAutoCompress.Tray -c Release -r win-x64 --self-contained -p:Version=${{ steps.ver.outputs.version }} -o dist/tray
 
       - name: Build installer (Inno Setup)
         shell: pwsh
