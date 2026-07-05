@@ -1,3 +1,5 @@
+using UglyToad.PdfPig;
+
 namespace PdfAutoCompress.Core;
 
 /// <summary>
@@ -8,6 +10,25 @@ namespace PdfAutoCompress.Core;
 public static class PdfCompressor
 {
     public const string CompressedSuffix = "-compressed.pdf";
+    public const string Marker = "PAC_5f3c9a1e";
+
+    /// <summary>
+    /// True if the PDF carries the compression marker in its Keywords metadata.
+    /// Unreadable/encrypted/not-yet-a-valid-PDF → false (let Ghostscript handle it).
+    /// </summary>
+    public static bool IsAlreadyCompressed(string path)
+    {
+        try
+        {
+            using var doc = PdfDocument.Open(path);
+            string? kw = doc.Information.Keywords;
+            return kw is not null && kw.Contains(Marker);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     public delegate Task<(int exit, string stderr)> GhostscriptRunner(
         string ghostscriptExe, string src, string tmp, AppConfig config);
@@ -15,7 +36,7 @@ public static class PdfCompressor
     public static async Task<CompressResult?> CompressFileAsync(
         string src, AppConfig config, string ghostscriptExe, GhostscriptRunner? runner = null)
     {
-        runner ??= GhostscriptCompress.RunGhostscriptAsync;
+        runner ??= Core.GhostscriptRunner.RunGhostscriptAsync;
 
         if (!File.Exists(src))
             return null;

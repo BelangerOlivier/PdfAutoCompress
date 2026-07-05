@@ -123,6 +123,12 @@ public sealed class PdfWatcher : IDisposable
         if (!await WaitUntilReadyAsync(src))
             return;
 
+        if (PdfCompressor.IsAlreadyCompressed(src))
+        {
+            Logger.Emit($"Skipped {Path.GetFileName(src)}: already compressed.");
+            return;
+        }
+
         long origSize = new FileInfo(src).Length;
         if (_config.MinSizeBytes > 0 && origSize < _config.MinSizeBytes)
             return;

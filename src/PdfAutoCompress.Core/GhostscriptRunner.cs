@@ -2,7 +2,7 @@
 
 namespace PdfAutoCompress.Core;
 
-public static class GhostscriptCompress
+public static class GhostscriptRunner
 {
     public static async Task<(int exit, string stderr)> RunGhostscriptAsync(
         string ghostscriptExePath,
@@ -26,6 +26,9 @@ public static class GhostscriptCompress
         psi.ArgumentList.Add("-dBATCH");
         psi.ArgumentList.Add("-dSAFER");
         psi.ArgumentList.Add($"-sOutputFile={tmp}");
+        psi.ArgumentList.Add("-c");
+        psi.ArgumentList.Add($"[ /Keywords ({PdfCompressor.Marker}) /DOCINFO pdfmark");
+        psi.ArgumentList.Add("-f");
         psi.ArgumentList.Add(src);
 
         using var proc = Process.Start(psi)
