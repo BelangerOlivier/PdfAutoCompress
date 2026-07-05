@@ -33,10 +33,10 @@ public static class GhostscriptRunner
 
         using var proc = Process.Start(psi)
             ?? throw new InvalidOperationException("Failed to start Ghostscript.");
-        // Drain stderr before waiting to avoid deadlock on large output.
-        string stderr = await proc.StandardError.ReadToEndAsync();
-        _ = await proc.StandardOutput.ReadToEndAsync();
-        await proc.WaitForExitAsync();
-        return (proc.ExitCode, stderr);
+        // Drain both streams concurrently so a full pipe buffer can't deadlock.
+        Task<string> stderrTask = proc.StandardError.ReadToEndAsync();
+        Task<string> stdoutTask = proc.StandardOutput.ReadToEndAsync();
+        await Task.WhenAll(stderrTask, stdoutTask, proc.WaitForExitAsync());
+        return (proc.ExitCode, await stderrTask);
     }
 }
