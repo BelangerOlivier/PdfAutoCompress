@@ -137,10 +137,7 @@ public sealed class PdfWatcher : IDisposable
 
         // The compressor writes to <src>.gstmp then moves it onto the destination; pre-mark
         // the destination as busy so we ignore the file event that move produces.
-        string dest = _config.KeepOriginal
-            ? Path.Combine(Path.GetDirectoryName(src)!,
-                           Path.GetFileNameWithoutExtension(src) + CompressedSuffix)
-            : src;
+        string dest = PdfCompressor.DestinationFor(src, _config);
         _busy[dest] = DateTime.UtcNow;
 
         try
