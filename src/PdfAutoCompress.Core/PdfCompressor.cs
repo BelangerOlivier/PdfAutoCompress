@@ -30,6 +30,13 @@ public static class PdfCompressor
         }
     }
 
+    /// <summary>Destination the compressed output lands on for <paramref name="src"/>.</summary>
+    public static string DestinationFor(string src, AppConfig config) =>
+        config.KeepOriginal
+            ? Path.Combine(Path.GetDirectoryName(src)!,
+                           Path.GetFileNameWithoutExtension(src) + CompressedSuffix)
+            : src;
+
     public delegate Task<(int exit, string stderr)> GhostscriptRunner(
         string ghostscriptExe, string src, string tmp, AppConfig config);
 
@@ -46,10 +53,7 @@ public static class PdfCompressor
             return null;
 
         string tmp = src + ".gstmp"; // not *.pdf, so it can't retrigger a watcher
-        string dest = config.KeepOriginal
-            ? Path.Combine(Path.GetDirectoryName(src)!,
-                           Path.GetFileNameWithoutExtension(src) + CompressedSuffix)
-            : src;
+        string dest = DestinationFor(src, config);
 
         try
         {
