@@ -4,15 +4,14 @@
 
 PDF Auto-Compress quietly runs in the background and watches your **Downloads** folder. Whenever a new PDF shows up, it compresses it in place so the big scanned form you just saved becomes a small, e-mail-friendly file without you doing anything.
 
-It works with **any browser** (Edge, Chrome, Firefox, …) and everything happens **on your own
-computer**, your files are never uploaded anywhere.
+It works with **any browser** (Edge, Chrome, Firefox, …) and everything happens **on your own computer**, your files are never uploaded anywhere.
 
 ---
 
 ## ✨ What it does
 
 - 📉 **Compresses PDFs automatically** right after they finish downloading.
-- 🖱️ **Lives in your system tray** with a simple settings window — no command line needed.
+- 🖱️ **Lives in your system tray** with a simple settings window and no command line needed.
 - 🔒 **100% local & private** — no accounts, no uploads, no internet required to compress.
 - ✅ **Safe** — it only replaces a file when the compressed version is actually smaller.
 - 🚀 **Starts with Windows** (optional) so it's always working.
@@ -33,21 +32,14 @@ PDF Auto-Compress uses a free tool called **Ghostscript** to do the actual compr
 
 1. Go to the **[Releases page](https://github.com/BelangerOlivier/PdfAutoCompress/releases)**.
 2. Download **`PdfAutoCompressSetup.exe`** from the latest release.
-3. **Run it.** The installer sets everything up for you — no admin rights needed. It installs to a
-   per-user folder, adds a Start-menu entry, and (optional) sets the app to start with Windows.
-   When it finishes, PDF Auto-Compress launches automatically.
+3. **Run it.** The installer sets everything up for you, no admin rights needed. It installs to a per-user folder, adds a Start-menu entry, and (optional) sets the app to start with Windows. When it finishes, PDF Auto-Compress launches automatically.
+4. That's it, a small red **PDF** icon appears in your system tray. It's now watching your Downloads folder.
 
-That's it — a small red **PDF** icon appears in your system tray. It's now watching your Downloads folder.
-
-> 💡 The first time Windows may show a "Windows protected your PC" screen because the installer
-> isn't code-signed. Click **More info → Run anyway**.
+> 💡 The first time Windows may show a "Windows protected your PC" screen because the installer isn't code-signed. Click **More info → Run anyway**.
 >
-> **Updating** is just as easy: download the newer `PdfAutoCompressSetup.exe` and run it. It closes
-> the running app, upgrades it in place, and restarts it — no need to quit or uninstall first.
+> **Updating** is just as easy: download the newer `PdfAutoCompressSetup.exe` and run it. It closes the running app, upgrades it in place, and restarts it, no need to quit or uninstall first.
 >
-> **To remove it later:** open **Settings ▸ Apps ▸ Installed apps** (or *Add or remove programs*),
-> find **PDF Auto-Compress**, and click **Uninstall** — or use the Start-menu uninstaller. Your
-> settings are kept.
+> **To remove it later:** open **Settings ▸ Apps ▸ Installed apps** (or *Add or remove programs*), find **PDF Auto-Compress**, and click **Uninstall** or use the Start-menu uninstaller. Your settings are kept.
 
 ### Step 3 — Try it
 
@@ -80,7 +72,7 @@ Open **Settings…** from the tray menu (or double-click the tray icon) to chang
 | **Show a notification when a PDF is compressed** | Turn the pop-ups on or off. |
 | **Launch automatically on startup** | Launch PDF Auto-Compress every time you sign in to Windows. |
 | **Check for updates on startup** | Let it check GitHub for a newer version. |
-| **Ghostscript** | Leave empty — it finds Ghostscript on its own. Only fill this in if you installed Ghostscript somewhere unusual. |
+| **Ghostscript** | Leave empty, it finds Ghostscript on its own. Only fill this in if you installed Ghostscript somewhere unusual. |
 
 Changes take effect as soon as you click **Save**.
 
@@ -89,22 +81,16 @@ Changes take effect as soon as you click **Save**.
 ## ❓ Troubleshooting
 
 **The tray icon says "not watching / Ghostscript not found."**
-Ghostscript isn't installed (or is in an unusual location). Do Step 1 above, then open
-**Settings → Save** (or restart the app). If you installed it somewhere custom, point the
-**Ghostscript** box at your `gswin64c.exe`.
+Ghostscript isn't installed (or is in an unusual location). Do Step 1 above, then open **Settings → Save** (or restart the app). If you installed it somewhere custom, point the **Ghostscript** box at your `gswin64c.exe`.
 
 **My PDF didn't get smaller.**
-Some PDFs are already optimized, or are mostly text, and can't shrink much. PDF Auto-Compress
-never makes a file bigger, if it can't save space, it leaves the original untouched. Files
-below the **Min size** threshold are skipped too (lower it to test).
+Some PDFs are already optimized, or are mostly text, and can't shrink much. PDF Auto-Compress never makes a file bigger, if it can't save space, it leaves the original untouched. Files below the **Min size** threshold are skipped too (lower it to test).
 
 **It's not doing anything.**
-Make sure the tray icon is present (it may be hidden behind the **^** arrow near the clock),
-that it isn't **Paused**, and that you're saving PDFs into the folder it's watching.
+Make sure the tray icon is present (it may be hidden behind the **^** arrow near the clock), that it isn't **Paused**, and that you're saving PDFs into the folder it's watching.
 
 **Does it upload my files?**
-No. Everything happens on your computer. The only time it uses the internet is the optional
-update check.
+No. Everything happens on your computer. The only time it uses the internet is the optional update check.
 
 ---
 
@@ -114,8 +100,7 @@ Prefer no desktop app? The same engine comes in two other flavors on the
 [Releases page](https://github.com/BelangerOlivier/PdfAutoCompress/releases):
 
 - **Background service** — installs as a Windows Service that runs silently for all sessions.
-- **Command-line tool** — a tiny watcher you run in a terminal; works on **Windows, macOS and
-  Linux**.
+- **Command-line tool** — a tiny watcher you run in a terminal; works on **Windows, macOS and Linux**.
 
 Both read the same settings and compress the same way; they just have no window.
 
