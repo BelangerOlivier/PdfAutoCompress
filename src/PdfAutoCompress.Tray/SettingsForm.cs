@@ -145,7 +145,7 @@ internal sealed class SettingsForm : Form
             _log.AppendText(line + Environment.NewLine);
 
         string gs = GhostscriptChecker.ResolveGhostscript(_config.GhostscriptPath);
-        _status.Text = $"Version {UpdateChecker.CurrentVersion()}   •   " +
+        _status.Text = $"Version {UpdateChecker.CurrentVersion().ToString(3)}   •   " +
             (gs.Length > 0 ? $"Ghostscript: {gs}" : "Ghostscript: NOT FOUND — install it or set the path above.");
     }
 
@@ -198,19 +198,12 @@ internal sealed class SettingsForm : Form
 
     private async Task CheckNow()
     {
-        string repo = AppConfig.UpdateRepo.Trim();
-        if (repo.Length == 0)
-        {
-            MessageBox.Show(this, "Enter your GitHub repo (owner/name) first.",
-                "Check for updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-        UpdateInfo? info = await UpdateChecker.CheckAsync(repo);
+        UpdateInfo? info = await UpdateChecker.CheckAsync(AppConfig.UpdateRepo.Trim());
         if (info is { } u)
         {
             if (MessageBox.Show(this,
                     $"A new version is available: {u.Tag}\n" +
-                    $"You have {UpdateChecker.CurrentVersion()}.\n\nOpen the download page?",
+                    $"You have {UpdateChecker.CurrentVersion().ToString(3)}.\n\nOpen the download page?",
                     "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
                 == DialogResult.Yes)
             {

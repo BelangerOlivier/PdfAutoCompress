@@ -141,7 +141,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
             {
                 if (MessageBox.Show(
                         $"A new version is available: {u.Tag}\n" +
-                        $"You have {UpdateChecker.CurrentVersion()}.\n\nOpen the download page?",
+                        $"You have {UpdateChecker.CurrentVersion().ToString(3)}.\n\nOpen the download page?",
                         "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
                     == DialogResult.Yes)
                 {
@@ -151,7 +151,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
             else
             {
                 _tray.ShowBalloonTip(8000, "Update available",
-                    $"Version {u.Tag} is available (you have {UpdateChecker.CurrentVersion()}). " +
+                    $"Version {u.Tag} is available (you have {UpdateChecker.CurrentVersion().ToString(3)}). " +
                     "Open Settings ▸ Check for updates to download.", ToolTipIcon.Info);
             }
         }
