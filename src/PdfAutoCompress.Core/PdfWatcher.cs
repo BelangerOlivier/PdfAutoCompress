@@ -177,7 +177,7 @@ public sealed class PdfWatcher : IDisposable
                     return true;
             }
             catch (IOException) { /* still being written */ }
-            catch (UnauthorizedAccessException) { }
+            catch (UnauthorizedAccessException) { /* is locked */ }
             await Task.Delay(500);
         }
         return false;

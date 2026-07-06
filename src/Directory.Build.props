@@ -1,9 +1,29 @@
 <Project>
 
   <PropertyGroup>
+    <VersionPrefix>1.4.0</VersionPrefix>
+
+    <!-- Targeting -->
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Code quality -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Assembly metadata -->
+    <Authors>Olivier Bélanger</Authors>
+    <RepositoryUrl>https://github.com/BelangerOlivier/PdfAutoCompress</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- Build/Output -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <InvariantGlobalization>true</InvariantGlobalization>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
 </Project>

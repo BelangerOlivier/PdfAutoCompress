@@ -5,14 +5,10 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <AssemblyName>PdfAutoCompress</AssemblyName>
     <RootNamespace>PdfAutoCompress.Tray</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>app.ico</ApplicationIcon>
-
-    <Version>1.0.3</Version>
 
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(PublishSingleFile)' == 'true'">win-x64</RuntimeIdentifier>
     <SelfContained Condition="'$(PublishSingleFile)' == 'true'">true</SelfContained>

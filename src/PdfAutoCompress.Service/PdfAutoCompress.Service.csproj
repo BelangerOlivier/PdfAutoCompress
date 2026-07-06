@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-PdfAutoCompress.Service-a1e5ac44-7d12-4f54-8c90-9a3ce98c4130</UserSecretsId>
   </PropertyGroup>
 

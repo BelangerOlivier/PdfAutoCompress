@@ -2,12 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AssemblyName>pdfautocompress</AssemblyName>
+    <AssemblyName>PdfAutoCompress</AssemblyName>
     <RootNamespace>PdfAutoCompress.Cli</RootNamespace>
-    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
