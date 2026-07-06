@@ -1,4 +1,4 @@
-## [1.0.4] (2026-07-05)
+## [0.0.5] (2026-07-05)
 
 ### Features
 
@@ -12,14 +12,14 @@
 - Fixed process output handling to prevent blocking during Ghostscript execution.
 
 
-## [1.0.3] (2026-07-04)
+## [0.0.4] (2026-07-04)
 
 ### Features
 
 - Install the application using the appropriate Windows Installer (`PdfAutoCompressSetup.exe`) instead of letting it install automatically. Uninstall it via **Add/Remove programs** like any other application; your settings will be preserved.
 
 
-## [1.0.2] (2026-07-03)
+## [0.0.3] (2026-07-03)
 
 ### Features
 
@@ -30,14 +30,14 @@
 - Fix an issue that prevented the installed application from running after installation; the downloaded application remained running instead.
 
 
-## [1.0.1] (2026-07-03)
+## [0.0.2] (2026-07-03)
 
 ### Bug fixes
 
 - Fix an issue that prevented the user from being prompted to install the application at launch.
 
 
-## [1.0.0] (2026-07-02)
+## [0.0.1] (2026-07-02)
 
 ### Features
 
