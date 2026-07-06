@@ -1,3 +1,10 @@
+## [1.0.5] (2026-07-06)
+
+### Bug fixes
+
+- Fix an issue where the installer would not terminate the ongoing process when attempting to update to the latest version.
+
+
 ## [1.0.4] (2026-07-05)
 
 ### Features
