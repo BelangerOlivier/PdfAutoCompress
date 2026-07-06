@@ -1,53 +1,52 @@
 # PDF Auto-Compress
 
-**Automatically shrink PDF files the moment you download them.**
+**Automatically compress PDF files the moment you download them.**
 
-PDF Auto-Compress quietly runs in the background and watches your **Downloads** folder. Whenever a new PDF shows up, it compresses it in place so the big scanned form you just saved becomes a small, e-mail-friendly file without you doing anything.
+PDF Auto-Compress quietly runs in the background and watches your Downloads folder. Whenever a new PDF shows up, it compresses it in place to become a small, e-mail-friendly file without you doing anything.
 
-It works with **any browser** (Edge, Chrome, Firefox, …) and everything happens **on your own computer**, your files are never uploaded anywhere.
-
----
-
-## ✨ What it does
-
-- 📉 **Compresses PDFs automatically** right after they finish downloading.
-- 🖱️ **Lives in your system tray** with a simple settings window and no command line needed.
-- 🔒 **100% local & private** — no accounts, no uploads, no internet required to compress.
-- ✅ **Safe** — it only replaces a file when the compressed version is actually smaller.
-- 🚀 **Starts with Windows** (optional) so it's always working.
-- 🔔 **Tells you** how much space it saved with a small notification.
+It works mainly on Windows but you can run the CLI on any OS.
+Your files are never uploaded anywhere.
 
 ---
 
-## 🟢 Getting started (Windows)
+## What it does
+
+- **Compresses PDFs automatically** right after they finish downloading.
+- **Lives in your system tray** with a simple settings window and no command line needed.
+- **100% local** — no accounts, no uploads, no internet required to compress.
+- **Safe** — it only replaces a file when the compressed version is actually smaller.
+- **Starts with Windows** (optional) so it's always working.
+- **Tells you** how much space it saved with a small notification.
+
+---
+
+## Getting started (Windows)
 
 ### Step 1 — Install Ghostscript (one time)
 
 PDF Auto-Compress uses a free tool called **Ghostscript** to do the actual compression.
 
 1. Download it from **[ghostscript.com/releases](https://ghostscript.com/releases/gsdnld.html)**
-2. Choose the **64-bit** installer and run it (just click through — the defaults are fine).
+2. Choose the **64-bit** installer and run it (just click through, the defaults are fine).
 
 ### Step 2 — Download PDF Auto-Compress
 
 1. Go to the **[Releases page](https://github.com/BelangerOlivier/PdfAutoCompress/releases)**.
 2. Download **`PdfAutoCompressSetup.exe`** from the latest release.
-3. **Run it.** The installer sets everything up for you, no admin rights needed. It installs to a per-user folder, adds a Start-menu entry, and (optional) sets the app to start with Windows. When it finishes, PDF Auto-Compress launches automatically.
-4. That's it, a small red **PDF** icon appears in your system tray. It's now watching your Downloads folder.
+3. **Run the installer**, it sets everything up for you, no admin rights needed. It installs to a per-user folder, adds a Start-menu entry, and (optional) sets the app to start with Windows.
+4. A small red **PDF** icon appears in your system tray. It's now watching your Downloads folder.
 
-> 💡 The first time Windows may show a "Windows protected your PC" screen because the installer isn't code-signed. Click **More info → Run anyway**.
->
-> **Updating** is just as easy: download the newer `PdfAutoCompressSetup.exe` and run it. It closes the running app, upgrades it in place, and restarts it, no need to quit or uninstall first.
+> **Updating** is the same, download the newer `PdfAutoCompressSetup.exe` and run it.
 >
 > **To remove it later:** open **Settings ▸ Apps ▸ Installed apps** (or *Add or remove programs*), find **PDF Auto-Compress**, and click **Uninstall** or use the Start-menu uninstaller. Your settings are kept.
 
 ### Step 3 — Try it
 
-Download any PDF larger than 1 MB in your browser. A moment later you'll see a notification like *"PDF compressed — XX% smaller"*, and the file in your Downloads folder will be smaller. Done!
+Download any PDF larger than the selected limit. A moment later you'll see a notification like *"PDF compressed — XX% smaller"*, and the file in your Downloads folder will be smaller.
 
 ---
 
-## 🛠️ Using it
+## Using it
 
 **Right-click the tray icon** for the menu:
 
@@ -78,7 +77,7 @@ Changes take effect as soon as you click **Save**.
 
 ---
 
-## ❓ Troubleshooting
+## Troubleshooting
 
 **The tray icon says "not watching / Ghostscript not found."**
 Ghostscript isn't installed (or is in an unusual location). Do Step 1 above, then open **Settings → Save** (or restart the app). If you installed it somewhere custom, point the **Ghostscript** box at your `gswin64c.exe`.
@@ -94,9 +93,9 @@ No. Everything happens on your computer. The only time it uses the internet is t
 
 ---
 
-## 💻 Other ways to run it (advanced)
+## Other ways to run it (advanced)
 
-Prefer no desktop app? The same engine comes in two other flavors on the
+Prefer no desktop app? The same engine comes in two other options on the
 [Releases page](https://github.com/BelangerOlivier/PdfAutoCompress/releases):
 
 - **Background service** — installs as a Windows Service that runs silently for all sessions.
@@ -106,7 +105,7 @@ Both read the same settings and compress the same way; they just have no window.
 
 ---
 
-## 🔧 Build from source
+## Build from source
 
 Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
@@ -122,8 +121,7 @@ To produce the standalone `PdfAutoCompress.exe`:
 dotnet publish src/PdfAutoCompress.Tray -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-The project is organized as a reusable core library (`PdfAutoCompress.Core`) with three
-front-ends: the tray app, a Windows Service, and a cross-platform CLI.
+The project is organized as a reusable core library (`PdfAutoCompress.Core`) with three front-ends: the tray app, a Windows Service, and a cross-platform CLI.
 
 ---
 
