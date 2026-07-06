@@ -1,54 +1,62 @@
 name: Release
 
-# Push a version tag (e.g. v1.2.0) to build the apps and create a draft GitHub Release
-# with the executables attached. You can also run it manually from the Actions tab.
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
-
+    inputs:
+      tag:
+        description: 'Existing tag to release (e.g. v1.2.0)'
+        required: true
+ 
 permissions:
   contents: write
-
+ 
 jobs:
   release:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0   # full history + tags, so we can find the previous tag for the compare link
-
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.tag || github.ref }}
+ 
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
-
+ 
       - name: Determine version from tag
         id: ver
         shell: pwsh
         run: |
-          $ref = "${{ github.ref_name }}"
-          $v = if ($ref -match '^v\d') { $ref.TrimStart('v') } else { '0.0.0' }
+          $ref = "${{ github.event.inputs.tag || github.ref_name }}"
+          if ($ref -notmatch '^v\d+\.\d+\.\d+') {
+            Write-Host "::error::'$ref' is not a version tag like v1.2.3."
+            exit 1
+          }
+          $v = $ref.TrimStart('v')
           "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          Write-Host "Version: $v"
-
+          "tag=$ref"   | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Releasing $ref (version $v)"
+ 
       - name: Publish tray app (Windows)
         run: dotnet publish src/PdfAutoCompress.Tray -c Release -r win-x64 --self-contained -p:Version=${{ steps.ver.outputs.version }} -o dist/tray
-
+ 
       - name: Build installer (Inno Setup)
         shell: pwsh
         run: >
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
           /DMyAppVersion=${{ steps.ver.outputs.version }} installer\PdfAutoCompress.iss
-
+ 
       - name: Publish background service (Windows)
         run: dotnet publish src/PdfAutoCompress.Service -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/service
-
+ 
       - name: Publish CLI (Windows, Linux, macOS)
         run: |
           dotnet publish src/PdfAutoCompress.Cli -c Release -r win-x64   --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/cli-win
           dotnet publish src/PdfAutoCompress.Cli -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/cli-linux
           dotnet publish src/PdfAutoCompress.Cli -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -p:Version=${{ steps.ver.outputs.version }} -o dist/cli-osx
-
+ 
       - name: Collect release assets
         shell: pwsh
         run: |
@@ -58,40 +66,47 @@ jobs:
           Copy-Item dist/cli-win/pdfautocompress.exe         assets/pdfautocompress-cli-win-x64.exe
           Copy-Item dist/cli-linux/pdfautocompress           assets/pdfautocompress-cli-linux-x64
           Copy-Item dist/cli-osx/pdfautocompress             assets/pdfautocompress-cli-osx-arm64
-
+ 
       - name: Build release notes from CHANGELOG
         shell: pwsh
         run: |
           $version = "${{ steps.ver.outputs.version }}"
-          $tag     = "${{ github.ref_name }}"
-          $changelog = Get-Content CHANGELOG.md -Raw
-
-          # Grab the "## [x.y.z] ..." block, stopping at the next "## [" heading, the
-          # link-reference definitions at the bottom ("[x]: url"), or end of file.
-          $pattern = "(?ms)^##\s*\[" + [regex]::Escape($version) + "\].*?(?=^##\s*\[|^\[[^\]]+\]:|\z)"
-          $match = [regex]::Match($changelog, $pattern)
-          if ($match.Success) {
-            # Drop the heading line itself — the release title already shows the version.
-            $body = (($match.Value.TrimEnd() -split "`r?`n") | Select-Object -Skip 1) -join "`n"
-            $body = $body.Trim()
-          } else {
+          $tag     = "${{ steps.ver.outputs.tag }}"
+          $repo    = "${{ github.repository }}"
+ 
+          $body = $null
+          if (Test-Path CHANGELOG.md) {
+            $changelog = Get-Content CHANGELOG.md -Raw
+            # Capture everything under "## [x.y.z] ..." up to the next "## [" heading
+            $pattern = "(?ms)^##\s*\[" + [regex]::Escape($version) + "\][^\r\n]*\r?\n(.*?)(?=^##\s*\[|^\[[^\]]+\]:\s|\z)"
+            $m = [regex]::Match($changelog, $pattern)
+            if ($m.Success) { $body = $m.Groups[1].Value.Trim() }
+          }
+ 
+          if ([string]::IsNullOrWhiteSpace($body)) {
             Write-Host "::warning::No CHANGELOG.md section for $version; using a fallback body."
-            $body = "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/$tag/CHANGELOG.md) for details."
+            $body = "See [CHANGELOG.md](https://github.com/$repo/blob/$tag/CHANGELOG.md) for details."
           }
-
-          # Append a compare link to the previous tag, when there is one.
-          $prev = git describe --tags --abbrev=0 "$tag^" 2>$null
-          if ($LASTEXITCODE -eq 0 -and $prev) {
-            $body += "`n`n**Full changelog:** https://github.com/${{ github.repository }}/compare/$prev...$tag"
+ 
+          # Add a compare link to the previous tag when one exists.
+          $prev = $null
+          try { $prev = git describe --tags --abbrev=0 "$tag^" 2>$null } catch { }
+          if ($LASTEXITCODE -ne 0) { $prev = $null }
+          $global:LASTEXITCODE = 0
+ 
+          if ($prev) {
+            $body += "`n`n**Full changelog:** https://github.com/$repo/compare/$prev...$tag"
           }
-
+ 
           Set-Content -Path release-notes.md -Value $body -Encoding utf8
           Write-Host "----- release-notes.md -----"
           Get-Content release-notes.md
-
+ 
       - name: Create draft release
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          body_path: release-notes.md
           files: assets/*
           draft: true
-          body_path: release-notes.md
