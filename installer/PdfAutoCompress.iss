@@ -33,7 +33,7 @@ DisableProgramGroupPage=yes
 ; Close the running app before upgrading and restart it afterwards — this is what removes the
 ; old "kill the process first" pain. The mutex name matches Program.cs's single-instance mutex.
 AppMutex=PdfAutoCompress.SingleInstance
-CloseApplications=yes
+CloseApplications=force
 RestartApplications=no
 
 SetupIconFile=..\src\PdfAutoCompress.Tray\app.ico
