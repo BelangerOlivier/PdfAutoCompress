@@ -1,11 +1,12 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/PdfAutoCompress.Cli/PdfAutoCompress.Cli.csproj" />
-    <Project Path="src/PdfAutoCompress.Core/PdfAutoCompress.Core.csproj" />
-    <Project Path="src/PdfAutoCompress.Service/PdfAutoCompress.Service.csproj" />
-    <Project Path="src/PdfAutoCompress.Tray/PdfAutoCompress.Tray.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PdfAutoCompress.Core.Tests/PdfAutoCompress.Core.Tests.csproj" />
   </Folder>
+  <Project Path="src/PdfAutoCompress.Cli/PdfAutoCompress.Cli.csproj" />
+  <Project Path="src/PdfAutoCompress.Core/PdfAutoCompress.Core.csproj" />
+  <Project Path="src/PdfAutoCompress.Service/PdfAutoCompress.Service.csproj" />
+  <Project Path="src/PdfAutoCompress.Tray/PdfAutoCompress.Tray.csproj" />
 </Solution>
