@@ -4,11 +4,9 @@ using System.Text.Json;
 
 namespace PdfAutoCompress.Core;
 
-public readonly record struct UpdateInfo(Version Latest, string Tag, string HtmlUrl);
+public readonly record struct UpdateInfo(
+    Version Latest, string Tag, string HtmlUrl, string InstallerUrl, long InstallerSize);
 
-/// <summary>
-/// Checks the GitHub repository's latest release and compares its tag to the running version.
-/// </summary>
 public static class UpdateChecker
 {
     private static readonly HttpClient s_http = CreateClient();
@@ -23,14 +21,10 @@ public static class UpdateChecker
         return c;
     }
 
-    /// <summary>Version of the running application (entry assembly), not this library.</summary>
     public static Version CurrentVersion() =>
         (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
             .GetName().Version ?? new Version(0, 0, 0);
 
-    /// <summary>
-    /// Returns update info if a newer release exists; null if up to date, repo blank, or on error.
-    /// </summary>
     public static async Task<UpdateInfo?> CheckAsync(string repo)
     {
         repo = repo.Trim().Trim('/');
@@ -56,12 +50,35 @@ public static class UpdateChecker
             if (!TryParseVersion(tag, out Version latest))
                 return null;
 
-            return latest > CurrentVersion() ? new UpdateInfo(latest, tag, htmlUrl) : null;
+            (string installerUrl, long installerSize) = FindInstallerAsset(root);
+
+            return latest > CurrentVersion()
+                ? new UpdateInfo(latest, tag, htmlUrl, installerUrl, installerSize)
+                : null;
         }
         catch
         {
             return null; // fail quietly
         }
+    }
+
+    internal static (string Url, long Size) FindInstallerAsset(JsonElement root)
+    {
+        if (!root.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array)
+            return ("", 0);
+
+        foreach (JsonElement asset in assets.EnumerateArray())
+        {
+            string name = asset.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+            if (!string.Equals(name, UpdateInstaller.InstallerAssetName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string url = asset.TryGetProperty("browser_download_url", out var u) ? u.GetString() ?? "" : "";
+            long size = asset.TryGetProperty("size", out var s) && s.TryGetInt64(out long sz) ? sz : 0;
+            return (url, size);
+        }
+
+        return ("", 0);
     }
 
     internal static bool TryParseVersion(string tag, out Version version)

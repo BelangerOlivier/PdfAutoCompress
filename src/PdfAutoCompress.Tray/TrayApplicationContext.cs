@@ -139,20 +139,13 @@ internal sealed class TrayApplicationContext : ApplicationContext
         {
             if (interactive)
             {
-                if (MessageBox.Show(
-                        $"A new version is available: {u.Tag}\n" +
-                        $"You have {UpdateChecker.CurrentVersion().ToString(3)}.\n\nOpen the download page?",
-                        "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
-                    == DialogResult.Yes)
-                {
-                    SettingsForm.OpenUrl(u.HtmlUrl);
-                }
+                await UpdateFlow.PromptDownloadInstallAsync(owner: null, u, quit: ExitThread);
             }
             else
             {
                 _tray.ShowBalloonTip(8000, "Update available",
                     $"Version {u.Tag} is available (you have {UpdateChecker.CurrentVersion().ToString(3)}). " +
-                    "Open Settings ▸ Check for updates to download.", ToolTipIcon.Info);
+                    "Right-click the tray icon ▸ Check for updates to install it.", ToolTipIcon.Info);
             }
         }
         else if (interactive)

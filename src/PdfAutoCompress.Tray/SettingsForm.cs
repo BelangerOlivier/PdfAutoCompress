@@ -201,14 +201,7 @@ internal sealed class SettingsForm : Form
         UpdateInfo? info = await UpdateChecker.CheckAsync(AppConfig.UpdateRepo.Trim());
         if (info is { } u)
         {
-            if (MessageBox.Show(this,
-                    $"A new version is available: {u.Tag}\n" +
-                    $"You have {UpdateChecker.CurrentVersion().ToString(3)}.\n\nOpen the download page?",
-                    "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
-                == DialogResult.Yes)
-            {
-                OpenUrl(u.HtmlUrl);
-            }
+            await UpdateFlow.PromptDownloadInstallAsync(this, u, quit: Application.Exit);
         }
         else
         {

@@ -66,6 +66,11 @@ jobs:
           Copy-Item dist/cli-win/pdfautocompress.exe         assets/pdfautocompress-cli-win-x64.exe
           Copy-Item dist/cli-linux/pdfautocompress           assets/pdfautocompress-cli-linux-x64
           Copy-Item dist/cli-osx/pdfautocompress             assets/pdfautocompress-cli-osx-arm64
+
+          # SHA-256 of the installer, so the in-app auto-updater can verify the download
+          # before running it. Emitted as "<hash>  PdfAutoCompressSetup.exe" (sha256sum format).
+          $hash = (Get-FileHash assets/PdfAutoCompressSetup.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  PdfAutoCompressSetup.exe" | Set-Content assets/PdfAutoCompressSetup.exe.sha256 -Encoding ascii -NoNewline
  
       - name: Build release notes from CHANGELOG
         shell: pwsh

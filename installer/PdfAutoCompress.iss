@@ -66,4 +66,15 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 Filename: "{app}\{#MyAppExeName}"; Description: "Start {#MyAppName}"; \
     Flags: nowait postinstall skipifsilent
 
+; Relaunch after a SILENT in-app auto-update. The running app invokes the installer with
+; "/SILENT /RELAUNCH=1"; the postinstall entry above is skipped when silent, so this one
+; (gated on the flag) brings the app back. Normal /SILENT release builds don't pass it.
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait; Check: WantRelaunch
+
 ; NOTE: user settings in %APPDATA%\PdfAutoCompress are intentionally left in place on uninstall.
+
+[Code]
+function WantRelaunch(): Boolean;
+begin
+  Result := ExpandConstant('{param:RELAUNCH|0}') = '1';
+end;

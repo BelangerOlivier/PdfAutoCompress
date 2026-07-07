@@ -4,10 +4,6 @@ namespace PdfAutoCompress.Core;
 
 public static class GhostscriptChecker
 {
-    /// <summary>
-    /// Try to resolve the Ghostscript executable path. If the configured path is valid, it is returned.
-    /// Otherwise, attempts to find Ghostscript in common installation locations or on the system PATH.
-    /// </summary>
     public static string ResolveGhostscript(string configured)
     {
         if (!string.IsNullOrWhiteSpace(configured))

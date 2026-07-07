@@ -2,20 +2,11 @@ using UglyToad.PdfPig;
 
 namespace PdfAutoCompress.Core;
 
-/// <summary>
-/// Compresses a single PDF with Ghostscript, in place or to a "-compressed.pdf" copy.
-/// UI- and watcher-agnostic: used by <see cref="PdfWatcher"/>, one-shot front-ends
-/// (the Explorer context menu, the "Compress a file now" tray item) and tests.
-/// </summary>
 public static class PdfCompressor
 {
     public const string CompressedSuffix = "-compressed.pdf";
     public const string Marker = "PAC_5f3c9a1e";
 
-    /// <summary>
-    /// True if the PDF carries the compression marker in its Keywords metadata.
-    /// Unreadable/encrypted/not-yet-a-valid-PDF → false (let Ghostscript handle it).
-    /// </summary>
     public static bool IsAlreadyCompressed(string path)
     {
         try
@@ -30,7 +21,6 @@ public static class PdfCompressor
         }
     }
 
-    /// <summary>Destination the compressed output lands on for <paramref name="src"/>.</summary>
     public static string DestinationFor(string src, AppConfig config) =>
         config.KeepOriginal
             ? Path.Combine(Path.GetDirectoryName(src)!,
@@ -79,7 +69,6 @@ public static class PdfCompressor
     }
 }
 
-/// <summary>Thrown when Ghostscript exits non-zero or produces no output file.</summary>
 public sealed class GhostscriptException(int exitCode, string stderr)
     : Exception($"Ghostscript failed (exit {exitCode}).")
 {

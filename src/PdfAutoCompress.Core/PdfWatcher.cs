@@ -5,11 +5,6 @@ namespace PdfAutoCompress.Core;
 public readonly record struct CompressResult(
     string File, long OriginalBytes, long NewBytes, double SavedPercent);
 
-/// <summary>
-/// The engine: watches a folder and compresses newly-arrived PDFs in place with Ghostscript.
-/// UI-agnostic and cross-platform, every front-end (tray, service, CLI) drives this class.
-/// Restartable: call <see cref="Stop"/> then <see cref="Start"/> after settings change.
-/// </summary>
 public sealed class PdfWatcher : IDisposable
 {
     private const string CompressedSuffix = PdfCompressor.CompressedSuffix;
