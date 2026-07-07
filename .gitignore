@@ -483,6 +483,7 @@ $RECYCLE.BIN/
 
 # Claude configurations
 .claude/
+IMPROVEMENTS.md
 
 # dist
 dist/

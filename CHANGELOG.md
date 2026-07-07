@@ -1,3 +1,10 @@
+## [1.0.6] (TBD)
+
+### Features
+
+- Implement an in-application update flow with installer download from the Github repository when a new version is released.
+
+
 ## [1.0.5] (2026-07-06)
 
 ### Bug fixes
