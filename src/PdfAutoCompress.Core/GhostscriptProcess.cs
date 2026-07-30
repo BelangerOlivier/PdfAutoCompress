@@ -17,6 +17,9 @@ public static class GhostscriptProcess
 
     public const string CompressedMarker = "PAC_5f3c9a1e";
 
+    /// <summary>
+    /// Try to find the executable path for Ghostscript.
+    /// </summary>
     public static string GetExecutablePath(string configuredPath)
     {
         if (IsConfiguredPathValid(configuredPath, out string path))
@@ -27,7 +30,33 @@ public static class GhostscriptProcess
             : GetPathFromEnvVariable(GhostscriptEnvVariable);
     }
 
-    private static bool IsConfiguredPathValid(string configuredPath, out string path)
+    /// <summary>
+    /// Start the Ghostscript process to compress the source file.
+    /// </summary>
+    /// <param name="executablePath">The Ghostscript executable path</param>
+    /// <param name="source">The source path of the file to be compressed</param>
+    /// <param name="temp">The destination path of the compressed file</param>
+    /// <param name="config">The user app configurations</param>
+    public static async Task<(int exitCode, string stderr)> StartAsync(
+        string executablePath,
+        string source,
+        string temp,
+        AppConfig config
+    )
+    {
+        var processInfo = GetProcessInfo(executablePath, source, temp, config);
+        using var process = Process.Start(processInfo)
+            ?? throw new InvalidOperationException("Failed to start Ghostscript");
+
+        // Drain both streams concurrently to avoid deadlock
+        Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
+        await Task.WhenAll(stderrTask, stdoutTask, process.WaitForExitAsync());
+
+        return (process.ExitCode, await stderrTask);
+    }
+
+    internal static bool IsConfiguredPathValid(string configuredPath, out string path)
     {
         path = string.Empty;
         if (string.IsNullOrWhiteSpace(configuredPath)) return false;
@@ -36,10 +65,10 @@ public static class GhostscriptProcess
         return File.Exists(path);
     }
 
-    private static bool IsRunningOnWindows()
+    internal static bool IsRunningOnWindows()
         => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-    private static string GetPathFromWindowsDirectories()
+    internal static string GetPathFromWindowsDirectories()
     {
         foreach (string root in WindowsDefaultDirectories)
         {
@@ -59,7 +88,7 @@ public static class GhostscriptProcess
             ?? string.Empty;
     }
 
-    private static string GetPathFromEnvVariable(string exe)
+    internal static string GetPathFromEnvVariable(string exe)
     {
         string? variablePath = Environment.GetEnvironmentVariable(PathEnvVariable);
         if (string.IsNullOrWhiteSpace(variablePath)) return string.Empty;
@@ -78,54 +107,43 @@ public static class GhostscriptProcess
         return string.Empty;
     }
 
-    public static ProcessStartInfo GetProcess(
+    internal static ProcessStartInfo GetProcessInfo(
         string executablePath,
         string source,
         string temp,
         AppConfig config
     )
     {
-        if (string.IsNullOrWhiteSpace(executablePath))
-            throw new ArgumentException("The executablePath is empty");
-        if (string.IsNullOrWhiteSpace(source))
-            throw new ArgumentException("The source is empty");
-        if (string.IsNullOrWhiteSpace(temp))
-            throw new ArgumentException("The temp is empty");
-
-        var process = GetProcessInfo(executablePath);
-        AddArgumentsToProcess(process, source, temp, config);
-        return process;
-    }
-
-    private static ProcessStartInfo GetProcessInfo(string executablePath)
-    {
-        return new ProcessStartInfo(executablePath)
+        var processInfo = new ProcessStartInfo(executablePath)
         {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+
+        AddArgumentsToProcess(processInfo, source, temp, config);
+        return processInfo;
     }
 
-    private static void AddArgumentsToProcess(
-        ProcessStartInfo process,
+    internal static void AddArgumentsToProcess(
+        ProcessStartInfo processInfo,
         string source,
         string temp,
         AppConfig config
     )
     {
-        process.ArgumentList.Add("-sDEVICE=pdfwrite");
-        process.ArgumentList.Add("-dCompatibilityLevel=1.4");
-        process.ArgumentList.Add($"-dPDFSETTINGS={config.PdfSettings}");
-        process.ArgumentList.Add("-dNOPAUSE");
-        process.ArgumentList.Add("-dQUIET");
-        process.ArgumentList.Add("-dBATCH");
-        process.ArgumentList.Add("-dSAFER");
-        process.ArgumentList.Add($"-sOutputFile={temp}");
-        process.ArgumentList.Add("-c");
-        process.ArgumentList.Add($"[ /Keywords ({CompressedMarker}) /DOCINFO pdfmark");
-        process.ArgumentList.Add("-f");
-        process.ArgumentList.Add(source);
+        processInfo.ArgumentList.Add("-sDEVICE=pdfwrite");
+        processInfo.ArgumentList.Add("-dCompatibilityLevel=1.4");
+        processInfo.ArgumentList.Add($"-dPDFSETTINGS={config.PdfSettings}");
+        processInfo.ArgumentList.Add("-dNOPAUSE");
+        processInfo.ArgumentList.Add("-dQUIET");
+        processInfo.ArgumentList.Add("-dBATCH");
+        processInfo.ArgumentList.Add("-dSAFER");
+        processInfo.ArgumentList.Add($"-sOutputFile={temp}");
+        processInfo.ArgumentList.Add("-c");
+        processInfo.ArgumentList.Add($"[ /Keywords ({CompressedMarker}) /DOCINFO pdfmark");
+        processInfo.ArgumentList.Add("-f");
+        processInfo.ArgumentList.Add(source);
     }
 }
