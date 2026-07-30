@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace PdfAutoCompress.Core;
 
@@ -13,6 +14,8 @@ public static class GhostscriptProcess
     private const string BinFolder = "bin";
     private const string GhostscriptEnvVariable = "gs";
     private const string PathEnvVariable = "PATH";
+
+    public const string CompressedMarker = "PAC_5f3c9a1e";
 
     public static string GetExecutablePath(string configuredPath)
     {
@@ -73,5 +76,56 @@ public static class GhostscriptProcess
             catch { /* Ignore malformed path entries */ }
         }
         return string.Empty;
+    }
+
+    public static ProcessStartInfo GetProcess(
+        string executablePath,
+        string source,
+        string temp,
+        AppConfig config
+    )
+    {
+        if (string.IsNullOrWhiteSpace(executablePath))
+            throw new ArgumentException("The executablePath is empty");
+        if (string.IsNullOrWhiteSpace(source))
+            throw new ArgumentException("The source is empty");
+        if (string.IsNullOrWhiteSpace(temp))
+            throw new ArgumentException("The temp is empty");
+
+        var process = GetProcessInfo(executablePath);
+        AddArgumentsToProcess(process, source, temp, config);
+        return process;
+    }
+
+    private static ProcessStartInfo GetProcessInfo(string executablePath)
+    {
+        return new ProcessStartInfo(executablePath)
+        {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+    }
+
+    private static void AddArgumentsToProcess(
+        ProcessStartInfo process,
+        string source,
+        string temp,
+        AppConfig config
+    )
+    {
+        process.ArgumentList.Add("-sDEVICE=pdfwrite");
+        process.ArgumentList.Add("-dCompatibilityLevel=1.4");
+        process.ArgumentList.Add($"-dPDFSETTINGS={config.PdfSettings}");
+        process.ArgumentList.Add("-dNOPAUSE");
+        process.ArgumentList.Add("-dQUIET");
+        process.ArgumentList.Add("-dBATCH");
+        process.ArgumentList.Add("-dSAFER");
+        process.ArgumentList.Add($"-sOutputFile={temp}");
+        process.ArgumentList.Add("-c");
+        process.ArgumentList.Add($"[ /Keywords ({CompressedMarker}) /DOCINFO pdfmark");
+        process.ArgumentList.Add("-f");
+        process.ArgumentList.Add(source);
     }
 }
