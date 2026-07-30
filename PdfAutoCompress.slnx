@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PdfAutoCompress.Core.Tests/PdfAutoCompress.Core.Tests.csproj" />
+    <Project Path="src/PdfAutoCompress.Core/PdfAutoCompress.Core.csproj" />
+  </Folder>
+</Solution>
