@@ -21,4 +21,12 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Eto.Forms" Version="2.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Eto.Platform.Wpf" Version="2.11.0" />
+  </ItemGroup>
+
 </Project>
