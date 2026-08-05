@@ -2,5 +2,6 @@
   <Folder Name="/src/">
     <Project Path="src/PdfAutoCompress.Core.Tests/PdfAutoCompress.Core.Tests.csproj" />
     <Project Path="src/PdfAutoCompress.Core/PdfAutoCompress.Core.csproj" />
+    <Project Path="src/PdfAutoCompress.Tray/PdfAutoCompress.Tray.csproj" Id="ae1a8bbf-0ade-4af8-89aa-78945b046cae" />
   </Folder>
 </Solution>
