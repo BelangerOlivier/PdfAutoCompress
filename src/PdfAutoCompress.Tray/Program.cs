@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 using Eto.Drawing;
 using Eto.Forms;
@@ -14,27 +15,34 @@ internal static class Program
     [STAThread]
     static void Main()
     {
-        app = new Application();
+        using var mutex = new Mutex(initiallyOwned: false, "PdfAutoCompress.SingleInstance");
 
-        app.Initialized += (s, e) =>
+        try
         {
-            var settingsItem = new ButtonMenuItem { Text = "Settings" };
-            settingsItem.Click += (_, __) => ShowWindow();
-
-            var quitItem = new ButtonMenuItem { Text = "Quit" };
-            quitItem.Click += (_, __) => app.Quit();
-
-            tray = new TrayIndicator
+            app = new Application();
+            app.Initialized += (s, e) =>
             {
-                Title = "PDF Auto Compress",
-                Image = Icon.FromResource("PdfAutoCompress.Tray.Resources.app.ico"),
-                Menu = new ContextMenu { Items = { settingsItem, quitItem } }
-            };
-            tray.Activated += (_, __) => ShowWindow();
-            tray.Show();
-        };
+                var settingsItem = new ButtonMenuItem { Text = "Settings" };
+                settingsItem.Click += (_, __) => ShowWindow();
 
-        app.Run();
+                var quitItem = new ButtonMenuItem { Text = "Quit" };
+                quitItem.Click += (_, __) => app.Quit();
+
+                tray = new TrayIndicator
+                {
+                    Title = "PDF Auto Compress",
+                    Image = Icon.FromResource("PdfAutoCompress.Tray.Resources.app.ico"),
+                    Menu = new ContextMenu { Items = { settingsItem, quitItem } }
+                };
+                tray.Activated += (_, __) => ShowWindow();
+                tray.Show();
+            };
+            app.Run();
+        }
+        finally
+        {
+            mutex.ReleaseMutex();
+        }
     }
 
     static void ShowWindow()
