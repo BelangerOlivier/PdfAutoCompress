@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PdfAutoCompress.Core\PdfAutoCompress.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Resources\app.ico" />
   </ItemGroup>
 
