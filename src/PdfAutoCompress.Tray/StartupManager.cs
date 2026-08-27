@@ -10,6 +10,7 @@ internal static class StartupManager
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string ValueName = "PdfAutoCompress";
+    private const string StartupArg = "--startup";
 
     public static bool IsEnabled()
     {
@@ -27,7 +28,7 @@ internal static class StartupManager
         if (enabled)
         {
             string? exePath = Environment.ProcessPath;
-            if (exePath is not null) key.SetValue(ValueName, $"\"{exePath}\"");
+            if (exePath is not null) key.SetValue(ValueName, $"\"{exePath}\" {StartupArg}");
         }
         else
         {
