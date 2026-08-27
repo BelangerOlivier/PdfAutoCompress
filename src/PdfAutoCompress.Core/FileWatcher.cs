@@ -70,7 +70,7 @@ public sealed class FileWatcher : IDisposable
 
             try
             {
-                await ProcessAsync(path);
+                await CompressAsync(path);
             }
             finally
             {
@@ -99,7 +99,7 @@ public sealed class FileWatcher : IDisposable
         _busy.TryRemove(path, out _);
     }
 
-    private async Task ProcessAsync(string source)
+    private async Task CompressAsync(string source)
     {
         if (!await WaitUntilFileIsReadyAsync(source)) return;
 
