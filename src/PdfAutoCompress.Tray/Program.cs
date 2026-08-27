@@ -9,7 +9,7 @@ internal static class Program
 {
     private static Application app;
     private static TrayIndicator tray;
-    private static MainForm window;
+    private static SettingsForm window;
 
     [STAThread]
     static void Main()
@@ -41,7 +41,7 @@ internal static class Program
     {
         if (window == null)
         {
-            window = new MainForm();
+            window = new SettingsForm();
             window.Closed += (_, __) => window = null;
         }
         window.Show();

@@ -23,6 +23,15 @@ public class AppConfig
     /// <summary>Determines the PDF compression settings. /ebook is the recommended compression.</summary>
     public string PdfSettings { get; set; } = "/ebook";
 
+    /// <summary>When true, a notification is shown each time a PDF is compressed.</summary>
+    public bool ShowNotification { get; set; } = true;
+
+    /// <summary>When true, the app launches automatically when the user logs in.</summary>
+    public bool LaunchOnStartup { get; set; }
+
+    /// <summary>When true, the app checks if an update is available and tries to update.</summary>
+    public bool CheckForUpdatesOnStartup { get; set; }
+
     /// <summary>Per-user settings file: %APPDATA%\PdfAutoCompress\appsettings.json</summary>
     [JsonIgnore]
     private static string ConfigPath => Path.Combine(
