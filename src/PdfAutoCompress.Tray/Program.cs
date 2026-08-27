@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 
 using Eto.Drawing;
@@ -14,6 +15,7 @@ internal static class Program
     private static TrayIndicator tray;
     private static SettingsForm window;
     private static FileWatcher fileWatcher;
+    private static Notifier notifier;
 
     [STAThread]
     static void Main()
@@ -40,7 +42,12 @@ internal static class Program
                 tray.Activated += (_, __) => ShowWindow();
                 tray.Show();
 
+                using var iconStream = typeof(Program).Assembly
+                    .GetManifestResourceStream("PdfAutoCompress.Tray.Resources.app.ico");
+                notifier = new Notifier(new System.Drawing.Icon(iconStream));
+
                 fileWatcher = new FileWatcher();
+                fileWatcher.Compressed += OnCompressed;
                 StartWatcher();
             };
 
@@ -49,11 +56,25 @@ internal static class Program
         finally
         {
             fileWatcher?.Dispose();
+            notifier?.Dispose();
             mutex.ReleaseMutex();
         }
     }
 
     public static void RestartWatcher() => StartWatcher();
+
+    static void OnCompressed(CompressResult result)
+    {
+        if (!AppConfig.Load().ShowNotification) return;
+
+        app.Invoke(() =>
+        {
+            double savedPercent = 100 - (100.0 * result.NewSize / result.OriginalSize);
+            string originalSize = FileWatcher.FormatSize(result.OriginalSize);
+            string newSize = FileWatcher.FormatSize(result.NewSize);
+            notifier.ShowSuccessfulCompression(Path.GetFileName(result.File), originalSize, newSize, savedPercent);
+        });
+    }
 
     static void StartWatcher()
     {
