@@ -155,7 +155,7 @@ public sealed class FileWatcher : IDisposable
         return false;
     }
 
-    internal static string FormatSize(long bytes)
+    public static string FormatSize(long bytes)
     {
         string[] units = ["B", "KB", "MB", "GB"];
         double value = bytes;

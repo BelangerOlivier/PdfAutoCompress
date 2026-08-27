@@ -11,6 +11,10 @@
 
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(BuildPlatform)' == 'Wpf' or '$(BuildPlatform)' == 'Windows'">
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\PdfAutoCompress.Core\PdfAutoCompress.Core.csproj" />
   </ItemGroup>
