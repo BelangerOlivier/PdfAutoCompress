@@ -80,7 +80,7 @@ public class SettingsForm : Form
             _watchedFolders.Items.Add(folder);
         }
 
-        _ghostscriptPath.Text = _config.GhostscriptLocation;
+        _ghostscriptPath.Text = GhostscriptProcess.GetExecutablePath(_config.GhostscriptLocation);
 
         _quality.Items.Add(new ListItem { Key = "/screen", Text = "/screen - Low resolution output, smallest file size" });
         _quality.Items.Add(new ListItem { Key = "/ebook", Text = "/ebook - Medium resolution output, good balance (recommended)" });
@@ -152,6 +152,7 @@ public class SettingsForm : Form
 
         _config.Save();
         StartupManager.SetEnabled(_config.LaunchOnStartup);
+        Program.RestartWatcher();
 
         Close();
     }

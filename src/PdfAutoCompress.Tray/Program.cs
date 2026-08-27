@@ -4,6 +4,8 @@ using System.Threading;
 using Eto.Drawing;
 using Eto.Forms;
 
+using PdfAutoCompress.Core;
+
 namespace PdfAutoCompress.Tray;
 
 internal static class Program
@@ -11,6 +13,7 @@ internal static class Program
     private static Application app;
     private static TrayIndicator tray;
     private static SettingsForm window;
+    private static FileWatcher fileWatcher;
 
     [STAThread]
     static void Main()
@@ -36,13 +39,27 @@ internal static class Program
                 };
                 tray.Activated += (_, __) => ShowWindow();
                 tray.Show();
+
+                fileWatcher = new FileWatcher();
+                StartWatcher();
             };
+
             app.Run();
         }
         finally
         {
+            fileWatcher?.Dispose();
             mutex.ReleaseMutex();
         }
+    }
+
+    public static void RestartWatcher() => StartWatcher();
+
+    static void StartWatcher()
+    {
+        string error = fileWatcher.Start(AppConfig.Load());
+        if (error is not null)
+            MessageBox.Show(error, "PDF Auto Compress", MessageBoxButtons.OK, MessageBoxType.Error);
     }
 
     static void ShowWindow()
