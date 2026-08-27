@@ -12,7 +12,7 @@ public static class FileInspector
         {
             using var doc = PdfDocument.Open(path);
             string? keywords = doc.Information.Keywords;
-            bool isCompressed = keywords is not null && keywords.Contains(GhostscriptProcess.CompressedMarker);
+            bool isCompressed = keywords is not null && keywords.Contains(Constants.CompressionMarker);
             return new PdfInfo(doc.NumberOfPages, isCompressed);
         }
         catch

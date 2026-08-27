@@ -15,8 +15,6 @@ public static class GhostscriptProcess
     private const string GhostscriptEnvVariable = "gs";
     private const string PathEnvVariable = "PATH";
 
-    public const string CompressedMarker = "PAC_5f3c9a1e";
-
     /// <summary>
     /// Try to find the executable path for Ghostscript.
     /// </summary>
@@ -142,7 +140,7 @@ public static class GhostscriptProcess
         processInfo.ArgumentList.Add("-dSAFER");
         processInfo.ArgumentList.Add($"-sOutputFile={temp}");
         processInfo.ArgumentList.Add("-c");
-        processInfo.ArgumentList.Add($"[ /Keywords ({CompressedMarker}) /DOCINFO pdfmark");
+        processInfo.ArgumentList.Add($"[ /Keywords ({Constants.CompressionMarker}) /DOCINFO pdfmark");
         processInfo.ArgumentList.Add("-f");
         processInfo.ArgumentList.Add(source);
     }

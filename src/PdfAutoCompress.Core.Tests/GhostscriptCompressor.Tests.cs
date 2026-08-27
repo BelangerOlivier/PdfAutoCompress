@@ -58,7 +58,7 @@ public class GhostscriptCompressorTests : IDisposable
 
         Assert.Null(result);
         Assert.Equal(1000, new FileInfo(source).Length);
-        Assert.False(File.Exists(source + GhostscriptCompressor.TempFileExtension));
+        Assert.False(File.Exists(source + Constants.TempFileExtension));
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class GhostscriptCompressorTests : IDisposable
                 "gs", source, config, FakeRunner(1250, exitCode: 1)));
 
         Assert.Equal(1000, new FileInfo(source).Length);
-        Assert.False(File.Exists(source + GhostscriptCompressor.TempFileExtension));
+        Assert.False(File.Exists(source + Constants.TempFileExtension));
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class GhostscriptCompressorTests : IDisposable
             GhostscriptCompressor.CompressFileAsync("gs", source, config, throwingRunner));
 
         Assert.Equal(1000, new FileInfo(source).Length);
-        Assert.False(File.Exists(source + GhostscriptCompressor.TempFileExtension));
+        Assert.False(File.Exists(source + Constants.TempFileExtension));
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class GhostscriptCompressorTests : IDisposable
         CompressResult? result = await GhostscriptCompressor.CompressFileAsync(
             "gs", source, config, FakeRunner(400));
 
-        string expectedCopy = Path.Combine(_dir, "a" + GhostscriptCompressor.CompressedSuffix);
+        string expectedCopy = Path.Combine(_dir, "a" + Constants.CompressedSuffix);
         Assert.NotNull(result);
         Assert.Equal(expectedCopy, result.Value.File);
         Assert.Equal(1000, new FileInfo(source).Length);
@@ -157,7 +157,7 @@ public class GhostscriptCompressorTests : IDisposable
         CompressResult? result = await GhostscriptCompressor.CompressFileAsync(
             "gs", source, config, FakeRunner(1250));
 
-        string wouldBeCopy = Path.Combine(_dir, "a" + GhostscriptCompressor.CompressedSuffix);
+        string wouldBeCopy = Path.Combine(_dir, "a" + Constants.CompressedSuffix);
         Assert.Null(result);
         Assert.Equal(1000, new FileInfo(source).Length);
         Assert.False(File.Exists(wouldBeCopy));
@@ -175,7 +175,7 @@ public class GhostscriptCompressorTests : IDisposable
     {
         string fileWithoutExt = Path.Combine(Path.GetTempPath(), $"a");
         string originalFile = fileWithoutExt + ".pdf";
-        string compressedFile = fileWithoutExt + GhostscriptCompressor.CompressedSuffix;
+        string compressedFile = fileWithoutExt + Constants.CompressedSuffix;
         Assert.Equal(compressedFile, GhostscriptCompressor.GetCompressedFileDestination(originalFile, true));
 
     }
