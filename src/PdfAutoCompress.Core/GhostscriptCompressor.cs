@@ -11,14 +11,18 @@ public static class GhostscriptCompressor
     public delegate Task<(int exit, string stderr)> GhostscriptRunner(
         string ghostscriptExe, string source, string temp, AppConfig config);
 
+    public delegate bool PageCountValidator(string source, string output);
+
     public static async Task<CompressResult?> CompressFileAsync(
         string ghostscriptExe,
         string source,
         AppConfig config,
-        GhostscriptRunner? runner = null
+        GhostscriptRunner? runner = null,
+        PageCountValidator? validator = null
     )
     {
         runner ??= GhostscriptProcess.StartAsync;
+        validator ??= FileInspector.IsSamePageCount;
 
         if (!File.Exists(source))
             return null;
@@ -39,6 +43,9 @@ public static class GhostscriptCompressor
             long newSize = GetFileSize(temp);
             if (!IsCompressionSmaller(originalSize, newSize))
                 return null; // No gain, leave the original untouched
+
+            if (!validator(source, temp))
+                throw new PageCountMismatchException(FileInspector.GetPageCount(source), FileInspector.GetPageCount(temp));
 
             MoveFileToDestination(temp, destination);
             return new CompressResult(destination, originalSize, newSize);
