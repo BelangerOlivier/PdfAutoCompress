@@ -87,7 +87,7 @@ public sealed class FileWatcher : IDisposable
     internal static bool IsFileCompressed(string path)
     {
         string filename = Path.GetFileName(path);
-        return filename.EndsWith(GhostscriptCompressor.CompressedSuffix, StringComparison.OrdinalIgnoreCase);
+        return filename.EndsWith(Constants.CompressedSuffix, StringComparison.OrdinalIgnoreCase);
     }
 
     internal bool IsFileBeingProcessed(string path) =>

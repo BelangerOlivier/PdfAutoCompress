@@ -5,9 +5,6 @@ public readonly record struct CompressResult(
 
 public static class GhostscriptCompressor
 {
-    public const string CompressedSuffix = "-compressed.pdf";
-    public const string TempFileExtension = ".gstmp";
-
     public delegate Task<(int exit, string stderr)> GhostscriptRunner(
         string ghostscriptExe, string source, string temp, AppConfig config);
 
@@ -31,7 +28,7 @@ public static class GhostscriptCompressor
         if (!CanBeCompressed(originalSize, config.MinSizeBytes))
             return null;
 
-        string temp = source + TempFileExtension; // Not *.pdf, so it can't retrigger a watcher
+        string temp = source + Constants.TempFileExtension; // Not *.pdf, so it can't retrigger a watcher
         string destination = GetCompressedFileDestination(source, config.KeepOriginal);
 
         try
@@ -65,7 +62,7 @@ public static class GhostscriptCompressor
         return keepOriginal
             ? Path.Combine(
                 Path.GetDirectoryName(source)!,
-                Path.GetFileNameWithoutExtension(source) + CompressedSuffix)
+                Path.GetFileNameWithoutExtension(source) + Constants.CompressedSuffix)
             : source;
     }
 
