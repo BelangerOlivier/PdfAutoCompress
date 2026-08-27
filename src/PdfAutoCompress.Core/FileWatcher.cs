@@ -103,6 +103,9 @@ public sealed class FileWatcher : IDisposable
     {
         if (!await WaitUntilFileIsReadyAsync(source)) return;
 
+        if (FileInspector.IsCompressed(source))
+            return;
+
         long originalSize = new FileInfo(source).Length;
         if (!GhostscriptCompressor.CanBeCompressed(originalSize, _config.MinSizeBytes))
             return;
