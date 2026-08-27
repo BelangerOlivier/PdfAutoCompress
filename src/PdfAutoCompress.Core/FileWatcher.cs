@@ -19,6 +19,7 @@ public sealed class FileWatcher : IDisposable
     {
         Stop();
         _config = config;
+        _config.GhostscriptLocation = GhostscriptProcess.GetExecutablePath(_config.GhostscriptLocation);
 
         SetWatchedFolders();
         if (!WatchedFolders.TrueForAll(Directory.Exists))
