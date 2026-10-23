@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
+using Serilog;
+
 namespace PdfAutoCompress.Core;
 
 public sealed class FileWatcher : IDisposable
@@ -23,12 +25,21 @@ public sealed class FileWatcher : IDisposable
 
         SetWatchedFolders();
         if (!WatchedFolders.TrueForAll(Directory.Exists))
-            return $"Watched folders do not exist: {string.Join(", ", WatchedFolders.Where(f => !Directory.Exists(f)))}";
+        {
+            string message = $"Watched folders do not exist: {string.Join(", ", WatchedFolders.Where(f => !Directory.Exists(f)))}";
+            Log.Error(message);
+            return message;
+        }
 
         if (string.IsNullOrWhiteSpace(_config.GhostscriptLocation))
+        {
+            Log.Error("Ghostscript was not found");
             return $"Ghostscript was not found.\n\nInstall it from https://ghostscript.com/releases/gsdnld.html, or set its path in settings.";
+        }
 
         StartWatcher();
+        Log.Information("Watching {Folders} with Ghostscript at {Ghostscript}",
+            string.Join(", ", WatchedFolders), _config.GhostscriptLocation);
         return null;
     }
 
@@ -81,7 +92,7 @@ public sealed class FileWatcher : IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Log.Error(ex, "Failed to process {File}", path);
         }
     }
 
@@ -102,14 +113,28 @@ public sealed class FileWatcher : IDisposable
 
     private async Task CompressAsync(string source)
     {
-        if (!await WaitUntilFileIsReadyAsync(source)) return;
+        string name = Path.GetFileName(source);
+        if (!await WaitUntilFileIsReadyAsync(source))
+        {
+            Log.Warning("Skipped {File}: file never became readable", name);
+            return;
+        }
 
         if (FileInspector.IsCompressed(source))
+        {
+            Log.Information("Skipped {File}: already compressed", name);
             return;
+        }
 
         long originalSize = new FileInfo(source).Length;
         if (!GhostscriptCompressor.CanBeCompressed(originalSize, _config.MinSizeBytes))
+        {
+            Log.Information("Skipped {File}: {Size} is not above the minimum size of {Min}",
+                name, FormatSize(originalSize), FormatSize(_config.MinSizeBytes));
             return;
+        }
+
+        Log.Information("Compressing {File} ({Size})", name, FormatSize(originalSize));
 
         string destination = GhostscriptCompressor.GetCompressedFileDestination(source, _config.KeepOriginal);
         _busy[destination] = DateTime.UtcNow;
@@ -120,15 +145,16 @@ public sealed class FileWatcher : IDisposable
                 _config.GhostscriptLocation, source, _config);
             if (result is { } r)
             {
-                Console.WriteLine($"Compressed {Path.GetFileName(r.File)}: " +
-                    $"{FormatSize(r.OriginalSize)} -> {FormatSize(r.NewSize)} ({100 - (100 * r.NewSize / r.OriginalSize):F1}% saved)");
+                Log.Information("Compressed {File}: {Original} -> {New} ({Saved:F1}% saved)",
+                    Path.GetFileName(r.File), FormatSize(r.OriginalSize), FormatSize(r.NewSize),
+                    100 - (100.0 * r.NewSize / r.OriginalSize));
                 Compressed?.Invoke(r);
             }
         }
         catch (GhostscriptException gex)
         {
             string detail = gex.Stderr.Length > 300 ? gex.Stderr[..300] : gex.Stderr;
-            Console.WriteLine(detail);
+            Log.Error(gex, "Ghostscript failed on {File}: {Detail}", name, detail);
         }
     }
 
