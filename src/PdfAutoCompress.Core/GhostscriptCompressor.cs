@@ -1,4 +1,6 @@
-﻿namespace PdfAutoCompress.Core;
+﻿using Serilog;
+
+namespace PdfAutoCompress.Core;
 
 public readonly record struct CompressResult(
     string File, long OriginalSize, long NewSize);
@@ -39,7 +41,11 @@ public static class GhostscriptCompressor
 
             long newSize = GetFileSize(temp);
             if (!IsCompressionSmaller(originalSize, newSize))
-                return null; // No gain, leave the original untouched
+            {
+                Log.Information("No gain for {File}: {New} bytes is not smaller than {Original} bytes, original left untouched",
+                    Path.GetFileName(source), newSize, originalSize);
+                return null;
+            }
 
             if (!validator(source, temp))
                 throw new PageCountMismatchException(FileInspector.GetPageCount(source), FileInspector.GetPageCount(temp));

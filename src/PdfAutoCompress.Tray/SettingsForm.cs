@@ -4,6 +4,9 @@ using Eto.Drawing;
 using Eto.Forms;
 
 using PdfAutoCompress.Core;
+using PdfAutoCompress.Core.Logging;
+
+using Serilog;
 
 namespace PdfAutoCompress.Tray;
 
@@ -19,7 +22,7 @@ public class SettingsForm : Form
     private readonly CheckBox _showNotification = new();
     private readonly CheckBox _launchOnStartup = new();
     private readonly CheckBox _checkForUpdatesOnStartup = new();
-    private readonly ListBox _recentActivity = new() { Enabled = false };
+    private readonly TextArea _activityLog = new() { ReadOnly = true, Wrap = false };
 
     public SettingsForm()
     {
@@ -65,13 +68,28 @@ public class SettingsForm : Form
         layout.AddRow(_launchOnStartup);
         layout.AddRow(_checkForUpdatesOnStartup);
 
-        layout.AddRow(new Label { Text = "Recent activity" });
-        layout.AddRow(new TableRow(_recentActivity) { ScaleHeight = true });
+        layout.AddRow(new Label { Text = "Activity log" });
+        layout.AddRow(new TableRow(_activityLog) { ScaleHeight = true });
 
         layout.AddRow(TableLayout.HorizontalScaled(6, saveButton, cancelButton));
 
         Content = layout;
+
+        ShowActivityLog();
     }
+
+    private void ShowActivityLog()
+    {
+        AppLogger.Sink.Emitted += AppendLogLine;
+        Closed += (_, _) => AppLogger.Sink.Emitted -= AppendLogLine;
+
+        var lines = AppLogger.Sink.Snapshot();
+        if (lines.Count > 0)
+            _activityLog.Append(string.Join("\n", lines) + "\n", true);
+    }
+
+    private void AppendLogLine(string line) =>
+        Application.Instance.AsyncInvoke(() => _activityLog.Append(line + "\n", true));
 
     private void PopulateFromConfig()
     {
@@ -152,6 +170,7 @@ public class SettingsForm : Form
 
         _config.Save();
         StartupManager.SetEnabled(_config.LaunchOnStartup);
+        Log.Information("Settings saved");
         Program.RestartWatcher();
 
         Close();

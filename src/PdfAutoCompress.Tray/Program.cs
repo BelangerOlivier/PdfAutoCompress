@@ -1,11 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Eto.Drawing;
 using Eto.Forms;
 
 using PdfAutoCompress.Core;
+using PdfAutoCompress.Core.Logging;
+
+using Serilog;
 
 namespace PdfAutoCompress.Tray;
 
@@ -20,10 +24,17 @@ internal static class Program
     [STAThread]
     static void Main()
     {
+        AppLogger.Configure();
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            Log.Fatal(e.ExceptionObject as Exception, "Unhandled exception");
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+            Log.Error(e.Exception, "Unobserved task exception");
+
         using var mutex = new Mutex(initiallyOwned: false, "PdfAutoCompress.SingleInstance");
 
         try
         {
+            Log.Information("PDF Auto Compress started");
             app = new Application();
             app.Initialized += (s, e) =>
             {
@@ -57,7 +68,9 @@ internal static class Program
         {
             fileWatcher?.Dispose();
             notifier?.Dispose();
-            mutex.ReleaseMutex();
+            Log.Information("PDF Auto Compress stopped");
+            AppLogger.Shutdown();
+            mutex.ReleaseMutex(); // Can throw (known gap), so it comes after the log is flushed
         }
     }
 
