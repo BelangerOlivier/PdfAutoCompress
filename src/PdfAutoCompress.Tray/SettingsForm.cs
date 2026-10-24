@@ -14,7 +14,7 @@ public class SettingsForm : Form
 {
     private readonly AppConfig _config;
 
-    private readonly ListBox _watchedFolders = new();
+    private readonly ListBox _watchedFolders = new() { Size = new Size(-1, 90) };
     private readonly TextBox _ghostscriptPath = new();
     private readonly DropDown _quality = new();
     private readonly NumericStepper _minSizeMb = new();
@@ -22,7 +22,7 @@ public class SettingsForm : Form
     private readonly CheckBox _showNotification = new();
     private readonly CheckBox _launchOnStartup = new();
     private readonly CheckBox _checkForUpdatesOnStartup = new();
-    private readonly TextArea _activityLog = new() { ReadOnly = true, Wrap = false };
+    private readonly TextArea _activityLog = new() { ReadOnly = true, Wrap = false, Size = new Size(-1, 150) };
 
     public SettingsForm()
     {
@@ -69,9 +69,9 @@ public class SettingsForm : Form
         layout.AddRow(_checkForUpdatesOnStartup);
 
         layout.AddRow(new Label { Text = "Activity log" });
-        layout.AddRow(new TableRow(_activityLog) { ScaleHeight = true });
+        layout.Add(_activityLog, yscale: true);
 
-        layout.AddRow(TableLayout.HorizontalScaled(6, saveButton, cancelButton));
+        layout.AddRow(TableLayout.HorizontalScaled(5, saveButton, cancelButton));
 
         Content = layout;
 
