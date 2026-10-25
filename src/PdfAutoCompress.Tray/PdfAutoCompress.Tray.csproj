@@ -1,32 +1,31 @@
 ﻿<Project Sdk="Eto.Forms/2.11.0">
 
-  <!--
-    Set the BuildPlatform property to the Eto platform you wish to build for.
-    The default is the platform you are building on.
-    Valid values: Wpf, Windows, Mac64, XamMac2, Gtk, Direct2D
-  -->
-
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BuildPlatform)' == 'Wpf' or '$(BuildPlatform)' == 'Windows'">
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\app.ico" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\PdfAutoCompress.Core\PdfAutoCompress.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\app.ico" />
+    <PackageReference Update="Eto.Forms" Version="2.13.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\app.ico">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <PackageReference Update="Eto.Platform.Wpf" Version="2.13.0" />
   </ItemGroup>
 
 </Project>
