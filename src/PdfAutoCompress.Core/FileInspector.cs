@@ -29,6 +29,6 @@ public static class FileInspector
     {
         int sourcePageCount = GetPageCount(source);
         int outputPageCount = GetPageCount(output);
-        return sourcePageCount > 0 && sourcePageCount == outputPageCount;
+        return sourcePageCount == outputPageCount;
     }
 }
