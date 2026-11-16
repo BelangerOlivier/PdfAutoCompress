@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore PdfAutoCompress.slnx
+
+      - name: Build
+        run: dotnet build PdfAutoCompress.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test PdfAutoCompress.slnx -c Release --no-build
