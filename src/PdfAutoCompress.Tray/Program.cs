@@ -83,7 +83,7 @@ internal static class Program
 
     static void StartWatcher()
     {
-        string error = fileWatcher.Start(AppConfig.Load());
+        string? error = fileWatcher.Start(AppConfig.Load());
         if (error is not null)
             MessageBox.Show(error, "PDF Auto Compress", MessageBoxButtons.OK, MessageBoxType.Error);
     }
@@ -93,7 +93,7 @@ internal static class Program
         if (window == null)
         {
             window = new SettingsForm();
-            window.Closed += (_, __) => window = null;
+            window.Closed += (_, __) => window = null!;
         }
         window.Show();
         window.BringToFront();
