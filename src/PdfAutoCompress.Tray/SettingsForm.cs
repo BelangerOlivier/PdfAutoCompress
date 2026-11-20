@@ -1,5 +1,3 @@
-using System.Linq;
-
 using Eto.Drawing;
 using Eto.Forms;
 
@@ -22,7 +20,7 @@ public class SettingsForm : Form
     private readonly CheckBox _showNotification = new();
     private readonly CheckBox _launchOnStartup = new();
     private readonly CheckBox _checkForUpdatesOnStartup = new();
-    private readonly TextArea _activityLog = new() { ReadOnly = true, Wrap = false, Size = new Size(-1, 150) };
+    private readonly TextArea _activityLog = new() { ReadOnly = true, Wrap = true, Size = new Size(-1, 150) };
 
     public SettingsForm()
     {
