@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Eto.Drawing;
-using Eto.Forms;
+﻿using Eto.Forms;
 
 using PdfAutoCompress.Core;
 using PdfAutoCompress.Core.Logging;
@@ -47,15 +41,13 @@ internal static class Program
                 tray = new TrayIndicator
                 {
                     Title = "PDF Auto Compress",
-                    Image = Icon.FromResource("PdfAutoCompress.Tray.Resources.app.ico"),
+                    Image = IconFactory.GetEtoIcon(),
                     Menu = new ContextMenu { Items = { settingsItem, quitItem } }
                 };
                 tray.Activated += (_, __) => ShowWindow();
                 tray.Show();
 
-                using var iconStream = typeof(Program).Assembly
-                    .GetManifestResourceStream("PdfAutoCompress.Tray.Resources.app.ico");
-                notifier = new Notifier(new System.Drawing.Icon(iconStream));
+                notifier = new Notifier(IconFactory.GetBaseIcon());
 
                 fileWatcher = new FileWatcher();
                 fileWatcher.Compressed += OnCompressed;
