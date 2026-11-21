@@ -11,7 +11,7 @@
 #endif
 
 #define MyAppName "PDF Auto-Compress"
-#define MyAppExeName "PdfAutoCompress.exe"
+#define MyAppExeName "PdfAutoCompress.Tray.exe"
 #define MyAppPublisher "Olivier Belanger"
 #define MyAppUrl "https://github.com/BelangerOlivier/PdfAutoCompress"
 
